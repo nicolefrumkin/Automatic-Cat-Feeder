@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 // Utility and helper functions
 String formatTimestamp(unsigned long time);
 String formatWeight(float weight);

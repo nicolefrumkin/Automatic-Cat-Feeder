@@ -1,3 +1,4 @@
+#pragma once
 // Project configuration and constants
 #define OLED_SDA 21
 #define OLED_SCL 22

@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 // implement these:
 // Time management and scheduling
 void initializeRTC();

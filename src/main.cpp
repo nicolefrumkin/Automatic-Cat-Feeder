@@ -11,14 +11,19 @@
 #include "simulation.h"
 #include "state_machine.h"
 #include "timing.h"
+#include <Arduino.h>
+#include "hardware.h"
 
 void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(115200);
-  Serial.println("Hello, ESP32!");
+    initializeHardware();
+    initializeOLED();
+    initializeServo();
+    
+    // Test basic functionality
+    blinkStatusLED(3);  // 3 blinks to show system ready
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  delay(10); // this speeds up the simulation
+    // Simple test loop
+    delay(1000);
 }

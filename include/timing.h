@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 // Time management and scheduling
 void initializeRTC();
 String getCurrentTime();

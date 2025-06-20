@@ -1,3 +1,6 @@
+#include <Arduino.h>
+#include "config.h"
+
 // System state management
 void setFeedingMode(FeedingMode mode);
 void setSystemState(SystemState state);

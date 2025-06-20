@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 // Hardware initialization and basic I/O
 void initializeHardware();
 void initializeOLED();

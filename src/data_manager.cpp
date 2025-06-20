@@ -1,3 +1,5 @@
+
+#include <Arduino.h>
 // implement these:
 // Data logging and history management
 void logFeedingEvent(String mode, int quantity);
