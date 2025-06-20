@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "author": "Smart Cat Feeder Project",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    { "type": "board-ssd1306", "id": "oled1", "top": -169.66, "left": 0.23, "attrs": {} },
+    {
+      "type": "wokwi-slide-switch",
+      "id": "sw1",
+      "top": 148.4,
+      "left": -131.3,
+      "attrs": { "color": "blue" }
+    },
+    { "type": "wokwi-servo", "id": "servo1", "top": 74.8, "left": 268.8, "attrs": {} },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn1",
+      "top": -51.4,
+      "left": -144,
+      "attrs": { "color": "green", "bounce": "0" }
+    },
+    { "type": "wokwi-hx711", "id": "hx711_1", "top": -83.8, "left": 281, "attrs": {} },
+    { "type": "wokwi-hx711", "id": "hx711_2", "top": -256.6, "left": 242.6, "attrs": {} },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": -80.4,
+      "left": 32.6,
+      "attrs": { "color": "blue" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": -14.95,
+      "left": 37,
+      "rotate": 180,
+      "attrs": { "value": "220" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r2",
+      "top": 3.95,
+      "left": -134.4,
+      "attrs": { "value": "10000" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r3",
+      "top": 205.55,
+      "left": -96,
+      "attrs": { "value": "10000" }
+    },
+    {
+      "type": "wokwi-slide-potentiometer",
+      "id": "pot2",
+      "top": 43.4,
+      "left": -269.8,
+      "attrs": { "travelLength": "30" }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "text1",
+      "top": -278.4,
+      "left": 240,
+      "attrs": { "text": "Bowl Weight Sensor" }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "text2",
+      "top": -105.6,
+      "left": 278.4,
+      "attrs": { "text": "Tank Weight Sensor" }
+    }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "oled1:VCC", "esp:3.3V", "red", [ "h28.8", "v86.4" ] ],
+    [ "oled1:GND", "esp:GND.1", "black", [ "v-9.6", "h-48", "v288" ] ],
+    [ "oled1:SCL", "esp:22", "#8f4814", [ "v-9.6", "h77.1", "v220.8" ] ],
+    [ "oled1:SDA", "esp:21", "red", [ "v-19.2", "h76.8", "v220.8" ] ],
+    [ "servo1:V+", "esp:5V", "red", [ "h-28.8", "v86.5", "h-225.79" ] ],
+    [ "servo1:GND", "esp:GND.2", "black", [ "h-38.4", "v28.8" ] ],
+    [ "servo1:PWM", "esp:18", "orange", [ "h-48", "v19.2" ] ],
+    [ "btn1:1.r", "esp:GND.1", "black", [ "h28.8", "v-48" ] ],
+    [ "btn1:2.l", "r2:2", "magenta", [ "v29", "h57.6" ] ],
+    [ "r2:1", "esp:3.3V", "red", [ "h0", "v-19.2" ] ],
+    [ "esp:25", "r2:2", "magenta", [ "h-38.4", "v-96", "h-52.81" ] ],
+    [ "sw1:1", "esp:GND.1", "black", [ "v9.6", "h76.8", "v-38.4" ] ],
+    [ "sw1:2", "r3:2", "red", [ "v0" ] ],
+    [ "r3:1", "esp:3.3V", "red", [ "h0", "v-28.8" ] ],
+    [ "esp:26", "r3:2", "red", [ "h-38.4", "v153.6" ] ],
+    [ "hx711_1:VCC", "esp:3.3V", "red", [ "h-48", "v134.4" ] ],
+    [ "hx711_1:GND", "esp:GND.2", "black", [ "h-57.6", "v124.8" ] ],
+    [ "hx711_1:DT", "esp:16", "green", [ "h-76.8", "v181.9" ] ],
+    [ "hx711_1:SCK", "esp:17", "yellow", [ "h-86.4", "v162.4" ] ],
+    [ "hx711_2:VCC", "esp:3.3V", "red", [ "h-48", "v230.4" ] ],
+    [ "hx711_2:GND", "esp:GND.2", "black", [ "h-57.6", "v220.8" ] ],
+    [ "hx711_2:DT", "esp:4", "green", [ "h-67.2", "v211.2" ] ],
+    [ "hx711_2:SCK", "esp:2", "yellow", [ "h-76.8", "v201.6" ] ],
+    [ "led1:A", "r1:1", "blue", [ "v9.6", "h67.2", "v19.2" ] ],
+    [ "r1:2", "esp:27", "blue", [ "v0.3", "h-57.8", "v-124.8" ] ],
+    [ "led1:C", "esp:GND.2", "black", [ "v19.2", "h67.6", "v48" ] ],
+    [ "esp:GND.1", "pot2:GND", "black", [ "h0" ] ],
+    [ "esp:32", "pot2:SIG", "orange", [ "h-33.41", "v-28.8", "h-240.38", "v48.8" ] ]
+  ],
+  "dependencies": {}
+}
