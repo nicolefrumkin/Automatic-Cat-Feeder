@@ -557,3 +557,4 @@ void displayProgressBar(int percentage, String label) {
     
     display.display();
 }
+

@@ -27,7 +27,7 @@ String formatWeight(float weight) {
 }
 
 int mapPotToGrams(int potValue) {
-    return map(potValue, 0, 4095, MIN_PORTION, MAX_PORTION);
+    return map(potValue, 0, 1023, MIN_PORTION, MAX_PORTION);
 }
 
 void playFeedingSound() {

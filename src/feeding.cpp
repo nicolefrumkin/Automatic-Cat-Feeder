@@ -119,16 +119,14 @@ void dispenseFood(int amount) {
 }
 
 void executeManualFeed() {
-    Serial.println("=== MANUAL FEED REQUESTED ===");
-    
-    int portion = calculatePortion();
-    Serial.print("Manual portion: ");
+    Serial.println("=== EXECUTING MANUAL FEED ===");
+    int portion = readPotentiometer();
+    Serial.print("Feeding ");
     Serial.print(portion);
     Serial.println("g");
     
+    // Simulate feeding
     dispenseFood(portion);
-    
-    // Log the feeding event
     logFeedingEvent("MANUAL", portion);
 }
 
@@ -256,3 +254,5 @@ void calibrateServo() {
     
     Serial.println("Servo calibration complete!");
 }
+
+

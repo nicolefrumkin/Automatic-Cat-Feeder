@@ -5,6 +5,10 @@
 #include "data_manager.h"
 #include "adaptive.h"
 #include "display.h"
+#include "feeding.h"
+#include "utils.h"
+#include "communication.h"
+#include "safety.h"
 
 // System state management
 static FeedingMode currentMode = MANUAL;
@@ -116,5 +120,83 @@ void handleCriticalAlerts() {
     if (detectUnusualBehavior()) {
         Serial.println("CRITICAL: Unusual eating behavior detected!");
         displayHealthAlert();
+    }
+}
+
+void checkInputs() {
+    static bool lastButtonState = false;
+    static unsigned long lastManualFeedTime = 0;
+    const unsigned long debounceDelay = 200;       
+    const unsigned long manualCooldown = 5000;     
+
+    // --- Update feeding mode based on switch ---
+    bool switchState = readModeSwitch();
+    FeedingMode selectedMode = switchState ? MANUAL : SCHEDULED;
+    if (selectedMode != currentMode) {
+        setFeedingMode(selectedMode);
+    }
+
+    // --- Potentiometer adjustment (LESS FREQUENT) ---
+    if (currentMode == MANUAL) {
+        static unsigned long lastPotCheck = 0;
+        if (millis() - lastPotCheck > 1000) { // Only check every second
+            int potValue = readPotentiometer();
+            // Don't call adjustPortionSize every time
+            static int lastPortion = -1;
+            if (abs(potValue - lastPortion) > 3) { // Larger threshold
+                adjustPortionSize(potValue);
+                lastPortion = potValue;
+            }
+            lastPotCheck = millis();
+        }
+    }
+
+    // --- Manual feed button ---
+    bool currentButtonState = readFeedButton();
+    unsigned long now = millis();
+
+    if (currentButtonState && !lastButtonState) {
+        if (now - lastManualFeedTime > manualCooldown) {
+            if (currentMode == MANUAL && canDispenseFood()) {
+                executeManualFeed();
+                lastManualFeedTime = now;
+            } else {
+                Serial.println("Feeding blocked - check safety conditions");
+            }
+        }
+    }
+    lastButtonState = currentButtonState;
+
+    // --- Tank low alert (LESS FREQUENT) ---
+    static unsigned long lastTankCheck = 0;
+    if (now - lastTankCheck > 30000) { // Check every 30 seconds
+        if (isTankLow()) {
+            indicateLowFood();
+            publishAlert();
+        }
+        lastTankCheck = now;
+    }
+
+    // Sensor safety check 
+    static unsigned long lastSensorCheck = 0;
+    static int consecutiveSensorFails = 0;
+    
+    if (now - lastSensorCheck > 30000) { // Only check every 30 seconds!
+        if (!validateSensorReadings()) {
+            consecutiveSensorFails++;
+            Serial.print("Sensor validation failed (");
+            Serial.print(consecutiveSensorFails);
+            Serial.println("/3)");
+            
+            // Only enter ERROR state after 3 consecutive failures
+            if (consecutiveSensorFails >= 3) {
+                Serial.println("CRITICAL: Multiple sensor failures!");
+                setSystemState(ERROR);
+                emergencyStop();
+            }
+        } else {
+            consecutiveSensorFails = 0; // Reset on success
+        }
+        lastSensorCheck = now;
     }
 }
