@@ -965,23 +965,6 @@ void emergencyStop() {
     Serial.println("3. Check all hardware connections");
 }
 
-// Helper function to check if system is in emergency mode
-bool isSystemInEmergencyMode() {
-    return systemInEmergencyMode;
-}
-
-// Helper function to clear emergency mode (use with caution)
-void clearEmergencyMode() {
-    systemInEmergencyMode = false;
-    consecutiveFailures = 0;
-    Serial.println("Emergency mode cleared");
-}
-
-// Helper function to check sensor timeout
-bool hasSensorTimeout() {
-    return (millis() - lastValidSensorReading) > SENSOR_TIMEOUT_MS;
-}
-
 // Periodic health check function (call in main loop)
 void performHealthCheck() {
     static unsigned long lastHealthCheck = 0;
@@ -1002,4 +985,21 @@ void performHealthCheck() {
         
         lastHealthCheck = currentTime;
     }
+}
+
+bool isSystemInEmergencyMode() {
+    extern bool systemInEmergencyMode;
+    return systemInEmergencyMode;
+}
+
+void clearEmergencyMode() {
+    extern bool systemInEmergencyMode;
+    systemInEmergencyMode = false;
+    Serial.println("Emergency mode cleared manually");
+}
+
+bool hasSensorTimeout() {
+    extern unsigned long lastValidSensorReading;
+    extern const unsigned long SENSOR_TIMEOUT_MS;
+    return (millis() - lastValidSensorReading) > SENSOR_TIMEOUT_MS;
 }

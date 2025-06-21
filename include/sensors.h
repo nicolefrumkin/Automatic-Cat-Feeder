@@ -1,8 +1,4 @@
-#pragma once
-
-#include <Arduino.h>
-
-// Weight sensor management functions
+// Weight sensor management
 void initializeWeightSensors();
 float readBowlWeight();
 float readTankWeight();
@@ -19,13 +15,11 @@ void trackEatingDuration();
 void detectOverfeeding();
 void preventDispenseIfFull();
 
-// Additional helper functions for testing and status
-void printSensorStatus();
+// Sensor update and simulation functions
 void updateSensorReadings();
+void simulateEating();
+void printSensorStatus();
 
-// Constants and thresholds (can be accessed from other files if needed)
-extern const float BOWL_FULL_THRESHOLD;
-extern const float BOWL_EMPTY_THRESHOLD;
-extern const float OVERFEED_THRESHOLD;
-extern const float TANK_CAPACITY;
-extern const float TANK_LOW_THRESHOLD_GRAMS;
+// Helper functions for testing
+void addFoodToBowl(float amount);
+void refillTank();

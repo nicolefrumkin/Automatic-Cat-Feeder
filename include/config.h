@@ -25,10 +25,31 @@
 enum FeedingMode { SCHEDULED, MANUAL };
 enum SystemState { IDLE, FEEDING, MONITORING, ERROR };
 
+// Complete FeedingEvent structure with all fields
 struct FeedingEvent {
     unsigned long timestamp;
     String mode;
     int quantity;
     float bowlWeightBefore;
     float bowlWeightAfter;
+    float consumed;                   // Amount consumed
+    unsigned long eatingDuration;     // How long cat took to eat
+    uint8_t modeCode;                 // 0=MANUAL, 1=SCHEDULED, 2=ADAPTIVE
 };
+
+// SystemSettings structure
+struct SystemSettings {
+    int defaultPortion;                 // Default feeding portion
+    unsigned long feedingInterval;      // Minimum time between feeds
+    float bowlFullThreshold;           // Bowl full threshold in grams
+    float bowlEmptyThreshold;          // Bowl empty threshold in grams
+    float tankLowThreshold;            // Tank low threshold percentage
+    bool adaptiveFeedingEnabled;       // Enable adaptive feeding
+    unsigned long dayStartTime;        // Time when day cycle starts
+    uint8_t checksum;                  // Settings checksum for validation
+};
+
+// Constants for sensor thresholds
+const float BOWL_FULL_THRESHOLD = 80.0;   // 80g = full bowl
+const float BOWL_EMPTY_THRESHOLD = 5.0;   // 5g = empty bowl
+const float TANK_EMPTY_THRESHOLD = 100.0; // 100g = nearly empty tank

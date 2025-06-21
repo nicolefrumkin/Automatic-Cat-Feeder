@@ -4,6 +4,8 @@
 #include "config.h"
 
 // Existing declarations (e.g., initializeHardware, etc.)
+bool isSystemInEmergencyMode();
+void clearEmergencyMode();
 void initializeHardware();
 void initializeOLED();
 void initializeServo();
@@ -23,8 +25,9 @@ void indicateFeedingError();
 void indicateLowFood();
 void indicateWiFiConnecting();
 void indicateWiFiConnected();
-
-// 🧩 ADD THESE TO FIX YOUR ERROR:
+bool isSystemInEmergencyMode();
+void clearEmergencyMode();
+bool hasSensorTimeout();
 int readPotentiometer();
 bool readFeedButton();
 bool readModeSwitch();

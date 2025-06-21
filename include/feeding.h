@@ -21,6 +21,3 @@ int calculatePortion();
 int getMinPortion();
 int getMaxPortion();
 void adjustPortionSize(int change);
-
-// Helper function for success indication
-void indicateFeedingSuccess();

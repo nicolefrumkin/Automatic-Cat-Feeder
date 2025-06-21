@@ -1,19 +1,19 @@
 #include <Arduino.h>
 #include "config.h"
 #include "hardware.h"
-#include "sensors.h"  // Include sensor functions
+#include "sensors.h"
+#include "data_manager.h"
 
 // Forward declarations for functions used before they're defined
 bool canDispenseFood();
 int calculatePortion();
-void indicateFeedingSuccess();
 
 // Global variables for feeding logic
 static int lastPortionSize = 50;  // Default portion size
 static unsigned long lastFeedTime = 0;
 static const unsigned long MIN_FEED_INTERVAL = 30000;  // 30 seconds minimum between feeds
 
-// Helper function implementations first
+// Helper function implementations
 int calculatePortion() {
     // Get portion from potentiometer
     int portion = readPotentiometer();
@@ -43,14 +43,14 @@ bool canDispenseFood() {
         return false;
     }
     
-    // Safety check 4: Bowl not full (NEW)
+    // Safety check 4: Bowl not full
     if (isBowlFull()) {
         Serial.println("SAFETY: Bowl is full - prevent overfeeding");
         preventDispenseIfFull();
         return false;
     }
     
-    // Safety check 5: Tank not empty (NEW)
+    // Safety check 5: Tank not empty
     if (isTankLow()) {
         Serial.println("SAFETY: Food tank is low - refill needed");
         return false;
@@ -66,9 +66,6 @@ bool canDispenseFood() {
     return true;
 }
 
-// Remove this function since it's already defined in hardware.cpp
-// void indicateFeedingSuccess() - REMOVED
-
 // Core feeding operations
 void dispenseFood(int amount) {
     Serial.println("=== DISPENSING FOOD ===");
@@ -80,6 +77,9 @@ void dispenseFood(int amount) {
         Serial.println("ERROR: Cannot dispense food - safety check failed");
         return;
     }
+    
+    // Get bowl weight before feeding for logging
+    float bowlWeightBefore = readBowlWeight();
     
     // Calculate servo open angle based on amount (30g = 30°, 75g = 75°)
     int servoAngle = map(amount, MIN_PORTION, MAX_PORTION, 30, 75);
@@ -100,8 +100,22 @@ void dispenseFood(int amount) {
     lastFeedTime = millis();
     lastPortionSize = amount;
     
+    // Get bowl weight after feeding
+    delay(1000); // Wait for food to settle
+    float bowlWeightAfter = readBowlWeight();
+    
     Serial.println("Food dispensing complete!");
     indicateFeedingSuccess();
+    
+    Serial.print("Bowl weight before: ");
+    Serial.print(bowlWeightBefore);
+    Serial.println("g");
+    Serial.print("Bowl weight after: ");
+    Serial.print(bowlWeightAfter);
+    Serial.println("g");
+    
+    // Log the feeding event
+    logFeedingEvent("DISPENSE", amount);
 }
 
 void executeManualFeed() {
@@ -114,8 +128,8 @@ void executeManualFeed() {
     
     dispenseFood(portion);
     
-    // Log the feeding event (implement this later)
-    // logFeedingEvent("MANUAL", portion);
+    // Log the feeding event
+    logFeedingEvent("MANUAL", portion);
 }
 
 void executeScheduledFeed() {
@@ -130,8 +144,8 @@ void executeScheduledFeed() {
     
     dispenseFood(scheduledPortion);
     
-    // Log the feeding event (implement this later)
-    // logFeedingEvent("SCHEDULED", scheduledPortion);
+    // Log the feeding event
+    logFeedingEvent("SCHEDULED", scheduledPortion);
 }
 
 void validateFeedingConditions() {
@@ -153,6 +167,21 @@ void validateFeedingConditions() {
     
     Serial.print("Can dispense: ");
     Serial.println(canDispenseFood() ? "YES" : "NO");
+    
+    // Additional sensor checks
+    Serial.print("Bowl full: ");
+    Serial.println(isBowlFull() ? "YES" : "NO");
+    
+    Serial.print("Tank low: ");
+    Serial.println(isTankLow() ? "YES" : "NO");
+    
+    Serial.print("Bowl weight: ");
+    Serial.print(readBowlWeight());
+    Serial.println("g");
+    
+    Serial.print("Tank weight: ");
+    Serial.print(readTankWeight());
+    Serial.println("g");
 }
 
 void processFeedingRequest() {

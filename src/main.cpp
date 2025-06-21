@@ -2,6 +2,7 @@
 #include "hardware.h"
 #include "feeding.h"
 #include "sensors.h"
+#include "display.h"  // Add display functions
 #include "config.h"
 
 // Function declarations
@@ -60,6 +61,7 @@ void loop() {
     // Update sensors every 1 second
     if (currentTime - lastSensorUpdate >= 1000) {
         updateSensorReadings();
+        updateDisplay();  // Update OLED display
         lastSensorUpdate = currentTime;
     }
     
@@ -142,6 +144,36 @@ void handleSerialInput() {
         else if (command == "test-sensors") {
             Serial.println("📊 Running sensor system tests...");
             testSensorSystem();
+        }
+        
+        // DISPLAY SYSTEM TESTS
+        else if (command == "display-welcome") {
+            Serial.println("🖥️ Showing welcome screen...");
+            displayWelcomeScreen();
+        }
+        else if (command == "display-time") {
+            Serial.println("🖥️ Showing time screen...");
+            displayCurrentTime();
+        }
+        else if (command == "display-feeding") {
+            Serial.println("🖥️ Showing feeding screen...");
+            displayNextFeedTime();
+        }
+        else if (command == "display-levels") {
+            Serial.println("🖥️ Showing food levels...");
+            displayKibbleAmount();
+        }
+        else if (command == "display-mode") {
+            Serial.println("🖥️ Showing mode status...");
+            displayModeStatus();
+        }
+        else if (command == "display-history") {
+            Serial.println("🖥️ Showing feeding history...");
+            displayFeedingHistory();
+        }
+        else if (command == "display-alert") {
+            Serial.println("🖥️ Testing health alert...");
+            displayHealthAlert();
         }
         
         // BASIC SYSTEM COMMANDS
@@ -332,6 +364,15 @@ void printHelp() {
     Serial.println("║  sensors     - Show sensor data   ║");
     Serial.println("║  calibrate-sensors - Calibrate    ║");
     Serial.println("║  test-sensors- Full sensor tests  ║");
+    Serial.println("║                                   ║");
+    Serial.println("║ DISPLAY COMMANDS:                 ║");
+    Serial.println("║  display-welcome - Welcome screen ║");
+    Serial.println("║  display-time - Time screen       ║");
+    Serial.println("║  display-feeding - Feed schedule  ║");
+    Serial.println("║  display-levels - Food levels     ║");
+    Serial.println("║  display-mode - Mode status       ║");
+    Serial.println("║  display-history - Feed history   ║");
+    Serial.println("║  display-alert - Test alerts      ║");
     Serial.println("║                                   ║");
     Serial.println("║ SYSTEM COMMANDS:                  ║");
     Serial.println("║  status      - Detailed status    ║");

@@ -1,86 +1,216 @@
 #include <Arduino.h>
 #include "config.h"
 #include "hardware.h"
+#include "sensors.h"
 
-// Forward declarations for functions used before they're defined
-float readBowlWeight();
-float readTankWeight();
-void detectOverfeeding();
-unsigned long getBowlEmptyDuration();
-
-// Global variables for weight sensor management
-static float bowlTareWeight = 0.0;
-static float tankTareWeight = 0.0;
-static float bowlCalibrationFactor = 2000.0;
-static float tankCalibrationFactor = 1000.0;
-
-// Bowl monitoring variables
+// Global variables for weight sensors
+static float bowlWeight = 0.0;
+static float tankWeight = 1000.0;  // Start with full tank
 static float lastBowlWeight = 0.0;
-static float bowlWeightBeforeFeeding = 0.0;
+static unsigned long lastBowlEmptyTime = 0;
 static unsigned long bowlEmptyStartTime = 0;
-static unsigned long eatingStartTime = 0;
-static bool bowlWasEmpty = true;
-static bool currentlyEating = false;
+static bool bowlWasEmpty = false;
+static unsigned long lastEatingStartTime = 0;
+static bool isEating = false;
 
-// Tank monitoring variables
-static float lastTankWeight = 1000.0;
-static const float TANK_CAPACITY = 2000.0;
-static const float TANK_LOW_THRESHOLD_GRAMS = TANK_CAPACITY * TANK_LOW_THRESHOLD;
+// Calibration values (would be set during calibration)
+static float bowlCalibrationFactor = 1.0;
+static float tankCalibrationFactor = 1.0;
+static float bowlZeroOffset = 0.0;
+static float tankZeroOffset = 0.0;
 
-// Bowl thresholds
-static const float BOWL_FULL_THRESHOLD = 80.0;
-static const float BOWL_EMPTY_THRESHOLD = 5.0;
-static const float OVERFEED_THRESHOLD = 100.0;
-
-// Simulated HX711 functions
-long readHX711(int dt_pin, int sck_pin) {
-    static long bowlSimValue = 50000;
-    static long tankSimValue = 500000;
+void initializeWeightSensors() {
+    Serial.println("=== INITIALIZING WEIGHT SENSORS ===");
     
-    long noise = random(-100, 100);
+    // Initialize HX711 pins
+    pinMode(HX711_BOWL_DT, INPUT);
+    pinMode(HX711_BOWL_SCK, OUTPUT);
+    pinMode(HX711_TANK_DT, INPUT);
+    pinMode(HX711_TANK_SCK, OUTPUT);
     
-    if (dt_pin == HX711_BOWL_DT) {
-        if (millis() % 60000 < 5000) {
-            bowlSimValue -= random(50, 200);
-            bowlSimValue = bowlSimValue < 10000L ? 10000L : bowlSimValue;
-        }
-        return bowlSimValue + noise;
-    } else if (dt_pin == HX711_TANK_DT) {
-        return tankSimValue + noise;
-    }
+    // Set clock pins low initially
+    digitalWrite(HX711_BOWL_SCK, LOW);
+    digitalWrite(HX711_TANK_SCK, LOW);
     
-    return 0;
+    // Simulate initialization delay
+    delay(1000);
+    
+    // Set initial values
+    bowlWeight = 10.0;  // Start with small amount in bowl
+    tankWeight = 1500.0; // Start with full tank
+    lastBowlWeight = bowlWeight;
+    
+    Serial.println("Weight sensors initialized!");
+    Serial.print("Initial bowl weight: ");
+    Serial.print(bowlWeight);
+    Serial.println("g");
+    Serial.print("Initial tank weight: ");
+    Serial.print(tankWeight);
+    Serial.println("g");
+    
+    Serial.println("Weight sensor initialization complete!");
 }
 
 float readBowlWeight() {
-    long rawValue = readHX711(HX711_BOWL_DT, HX711_BOWL_SCK);
-    float weight = (rawValue / bowlCalibrationFactor) - bowlTareWeight;
+    // Simulate HX711 reading with some noise and variation
+    // In real implementation, this would read from HX711
     
-    if (weight < 0.0f) {
-        weight = 0.0f;
+    // Add some random noise to make it realistic
+    float noise = (random(-50, 50) / 100.0); // ±0.5g noise
+    float reading = bowlWeight + noise;
+    
+    // Ensure reading is never negative - fix the max() issue
+    if (reading < 0.0) {
+        reading = 0.0;
     }
     
-    static float smoothedWeight = weight;
-    smoothedWeight = (smoothedWeight * 0.8f) + (weight * 0.2f);
-    
-    return smoothedWeight;
+    return reading;
 }
 
 float readTankWeight() {
-    long rawValue = readHX711(HX711_TANK_DT, HX711_TANK_SCK);
-    float weight = (rawValue / tankCalibrationFactor) - tankTareWeight;
+    // Simulate tank weight reading
+    // In real implementation, this would read from second HX711
     
-    if (weight < 0.0f) {
-        weight = 0.0f;
+    // Add some random noise
+    float noise = (random(-100, 100) / 100.0); // ±1g noise
+    float reading = tankWeight + noise;
+    
+    // Ensure reading is never negative - fix the max() issue
+    if (reading < 0.0) {
+        reading = 0.0;
     }
-    if (weight > TANK_CAPACITY) {
-        weight = TANK_CAPACITY;
+    
+    return reading;
+}
+
+void calibrateWeightSensors() {
+    Serial.println("=== WEIGHT SENSOR CALIBRATION ===");
+    
+    Serial.println("Starting calibration process...");
+    Serial.println("1. Remove all items from bowl and tank areas");
+    Serial.println("2. Press any key to continue...");
+    
+    // Wait for user input (in real system)
+    delay(3000); // Simulate waiting
+    
+    // Zero calibration
+    Serial.println("Calibrating zero points...");
+    
+    // Simulate zero calibration
+    bowlZeroOffset = readBowlWeight();
+    tankZeroOffset = readTankWeight();
+    
+    Serial.print("Bowl zero offset: ");
+    Serial.print(bowlZeroOffset);
+    Serial.println("g");
+    Serial.print("Tank zero offset: ");
+    Serial.print(tankZeroOffset);
+    Serial.println("g");
+    
+    // Known weight calibration
+    Serial.println("Place known weight (100g) on bowl scale...");
+    delay(3000); // Simulate waiting
+    
+    float knownWeight = 100.0;
+    float bowlReading = readBowlWeight() - bowlZeroOffset;
+    if (bowlReading != 0) {
+        bowlCalibrationFactor = knownWeight / bowlReading;
     }
     
-    static float smoothedWeight = weight;
-    smoothedWeight = (smoothedWeight * 0.9f) + (weight * 0.1f);
+    Serial.print("Bowl calibration factor: ");
+    Serial.println(bowlCalibrationFactor);
     
-    return smoothedWeight;
+    // Repeat for tank
+    Serial.println("Place known weight (500g) on tank scale...");
+    delay(3000);
+    
+    float tankKnownWeight = 500.0;
+    float tankReading = readTankWeight() - tankZeroOffset;
+    if (tankReading != 0) {
+        tankCalibrationFactor = tankKnownWeight / tankReading;
+    }
+    
+    Serial.print("Tank calibration factor: ");
+    Serial.println(tankCalibrationFactor);
+    
+    Serial.println("Calibration complete!");
+    Serial.println("Remove all calibration weights");
+    delay(2000);
+    
+    // Test calibrated readings
+    Serial.println("Testing calibrated readings:");
+    for (int i = 0; i < 5; i++) {
+        Serial.print("Bowl: ");
+        Serial.print(readBowlWeight());
+        Serial.print("g, Tank: ");
+        Serial.print(readTankWeight());
+        Serial.println("g");
+        delay(1000);
+    }
+}
+
+bool isBowlFull() {
+    float weight = readBowlWeight();
+    return weight >= BOWL_FULL_THRESHOLD;
+}
+
+bool isBowlEmpty() {
+    float weight = readBowlWeight();
+    return weight <= BOWL_EMPTY_THRESHOLD;
+}
+
+bool isTankLow() {
+    float weight = readTankWeight();
+    return weight <= TANK_EMPTY_THRESHOLD;
+}
+
+float calculateFoodConsumed() {
+    // Calculate food consumed since last measurement
+    float currentWeight = readBowlWeight();
+    float consumed = lastBowlWeight - currentWeight;
+    
+    // Only count positive consumption (food eaten, not added)
+    if (consumed > 0) {
+        lastBowlWeight = currentWeight;
+        return consumed;
+    }
+    
+    return 0.0;
+}
+
+// Bowl monitoring functions
+void monitorBowlStatus() {
+    float currentWeight = readBowlWeight();
+    bool currentlyEmpty = (currentWeight <= BOWL_EMPTY_THRESHOLD);
+    
+    // Track empty duration
+    if (currentlyEmpty && !bowlWasEmpty) {
+        // Bowl just became empty
+        bowlEmptyStartTime = millis();
+        bowlWasEmpty = true;
+        Serial.println("Bowl became empty");
+    } else if (!currentlyEmpty && bowlWasEmpty) {
+        // Bowl is no longer empty
+        bowlWasEmpty = false;
+        Serial.println("Bowl refilled");
+    }
+    
+    // Check for eating behavior
+    if (!currentlyEmpty && !isEating && (lastBowlWeight - currentWeight) > 1.0) {
+        // Eating started (weight decreased by more than 1g)
+        isEating = true;
+        lastEatingStartTime = millis();
+        Serial.println("Cat started eating");
+    } else if (isEating && abs(lastBowlWeight - currentWeight) < 0.5) {
+        // Eating stopped (weight stabilized)
+        isEating = false;
+        unsigned long eatingDuration = millis() - lastEatingStartTime;
+        Serial.print("Cat finished eating. Duration: ");
+        Serial.print(eatingDuration / 1000);
+        Serial.println(" seconds");
+    }
+    
+    lastBowlWeight = currentWeight;
 }
 
 unsigned long getBowlEmptyDuration() {
@@ -90,336 +220,165 @@ unsigned long getBowlEmptyDuration() {
     return 0;
 }
 
+void trackEatingDuration() {
+    if (isEating) {
+        unsigned long currentDuration = millis() - lastEatingStartTime;
+        Serial.print("Currently eating for: ");
+        Serial.print(currentDuration / 1000);
+        Serial.println(" seconds");
+    }
+}
+
 void detectOverfeeding() {
     float currentWeight = readBowlWeight();
     
-    if (currentWeight >= OVERFEED_THRESHOLD) {
-        Serial.println("🚨 OVERFEEDING DETECTED!");
+    if (currentWeight > BOWL_FULL_THRESHOLD * 1.2) { // 20% over threshold
+        Serial.println("WARNING: Overfeeding detected!");
         Serial.print("Bowl weight: ");
         Serial.print(currentWeight);
         Serial.print("g (threshold: ");
-        Serial.print(OVERFEED_THRESHOLD);
+        Serial.print(BOWL_FULL_THRESHOLD);
         Serial.println("g)");
         
-        Serial.println("Recommendations:");
-        Serial.println("- Reduce portion size");
-        Serial.println("- Check feeding schedule");
-        Serial.println("- Monitor cat's eating behavior");
-    }
-}
-
-void initializeWeightSensors() {
-    Serial.println("=== INITIALIZING WEIGHT SENSORS ===");
-    
-    pinMode(HX711_BOWL_DT, INPUT);
-    pinMode(HX711_BOWL_SCK, OUTPUT);
-    pinMode(HX711_TANK_DT, INPUT);
-    pinMode(HX711_TANK_SCK, OUTPUT);
-    
-    digitalWrite(HX711_BOWL_SCK, LOW);
-    digitalWrite(HX711_TANK_SCK, LOW);
-    
-    Serial.println("HX711 pins configured");
-    Serial.print("Bowl sensor - DT: ");
-    Serial.print(HX711_BOWL_DT);
-    Serial.print(", SCK: ");
-    Serial.println(HX711_BOWL_SCK);
-    
-    Serial.print("Tank sensor - DT: ");
-    Serial.print(HX711_TANK_DT);
-    Serial.print(", SCK: ");
-    Serial.println(HX711_TANK_SCK);
-    
-    delay(1000);
-    
-    Serial.println("Reading initial sensor values...");
-    
-    float initialBowlWeight = readBowlWeight();
-    float initialTankWeight = readTankWeight();
-    
-    Serial.print("Initial bowl weight: ");
-    Serial.print(initialBowlWeight);
-    Serial.println("g");
-    
-    Serial.print("Initial tank weight: ");
-    Serial.print(initialTankWeight);
-    Serial.println("g");
-    
-    lastBowlWeight = initialBowlWeight;
-    lastTankWeight = initialTankWeight;
-    bowlWasEmpty = (initialBowlWeight <= BOWL_EMPTY_THRESHOLD);
-    
-    if (bowlWasEmpty) {
-        bowlEmptyStartTime = millis();
-    }
-    
-    Serial.println("Weight sensors initialized successfully!");
-}
-
-void calibrateWeightSensors() {
-    Serial.println("=== WEIGHT SENSOR CALIBRATION ===");
-    Serial.println("Please ensure both bowl and tank are empty");
-    Serial.println("Calibration will start in 5 seconds...");
-    
-    for (int i = 5; i > 0; i--) {
-        Serial.print("Calibrating in ");
-        Serial.print(i);
-        Serial.println(" seconds...");
-        delay(1000);
-    }
-    
-    Serial.println("Calibrating bowl sensor (tare)...");
-    
-    float bowlTareSum = 0;
-    for (int i = 0; i < 10; i++) {
-        long rawValue = readHX711(HX711_BOWL_DT, HX711_BOWL_SCK);
-        bowlTareSum += (rawValue / bowlCalibrationFactor);
-        delay(100);
-    }
-    bowlTareWeight = bowlTareSum / 10.0f;
-    
-    Serial.print("Bowl tare weight set to: ");
-    Serial.print(bowlTareWeight);
-    Serial.println("g");
-    
-    Serial.println("Calibrating tank sensor (tare)...");
-    
-    float tankTareSum = 0;
-    for (int i = 0; i < 10; i++) {
-        long rawValue = readHX711(HX711_TANK_DT, HX711_TANK_SCK);
-        tankTareSum += (rawValue / tankCalibrationFactor);
-        delay(100);
-    }
-    tankTareWeight = tankTareSum / 10.0f;
-    
-    Serial.print("Tank tare weight set to: ");
-    Serial.print(tankTareWeight);
-    Serial.println("g");
-    
-    Serial.println("=== CALIBRATION COMPLETE ===");
-    
-    delay(1000);
-    Serial.print("Current bowl reading: ");
-    Serial.print(readBowlWeight());
-    Serial.println("g (should be ~0g)");
-    
-    Serial.print("Current tank reading: ");
-    Serial.print(readTankWeight());
-    Serial.println("g (should be ~0g)");
-}
-
-bool isBowlFull() {
-    float currentWeight = readBowlWeight();
-    return (currentWeight >= BOWL_FULL_THRESHOLD);
-}
-
-bool isBowlEmpty() {
-    float currentWeight = readBowlWeight();
-    return (currentWeight <= BOWL_EMPTY_THRESHOLD);
-}
-
-bool isTankLow() {
-    float currentWeight = readTankWeight();
-    return (currentWeight <= TANK_LOW_THRESHOLD_GRAMS);
-}
-
-float calculateFoodConsumed() {
-    float consumed = bowlWeightBeforeFeeding - readBowlWeight();
-    
-    if (consumed < 0.0f) {
-        consumed = 0.0f;
-    }
-    
-    return consumed;
-}
-
-void monitorBowlStatus() {
-    float currentBowlWeight = readBowlWeight();
-    bool currentlyEmpty = (currentBowlWeight <= BOWL_EMPTY_THRESHOLD);
-    bool currentlyFull = (currentBowlWeight >= BOWL_FULL_THRESHOLD);
-    
-    // Track bowl empty/full transitions
-    if (currentlyEmpty && !bowlWasEmpty) {
-        // Bowl just became empty
-        bowlEmptyStartTime = millis();
-        bowlWasEmpty = true;
-        
-        if (currentlyEating) {
-            // Cat finished eating
-            unsigned long eatingDuration = millis() - eatingStartTime;
-            Serial.print("Eating session complete. Duration: ");
-            Serial.print(eatingDuration / 1000);
-            Serial.println(" seconds");
-            
-            float consumed = calculateFoodConsumed();
-            Serial.print("Food consumed: ");
-            Serial.print(consumed);
-            Serial.println("g");
-            
-            currentlyEating = false;
-        }
-        
-        Serial.println("🍽️ Bowl is now EMPTY");
-    } else if (!currentlyEmpty && bowlWasEmpty) {
-        // Bowl just got food
-        bowlWasEmpty = false;
-        bowlWeightBeforeFeeding = currentBowlWeight;
-        Serial.println("🍽️ Bowl has food");
-    }
-    
-    // Detect eating behavior
-    if (!currentlyEmpty && !currentlyEating) {
-        // Check if weight is decreasing (eating detected)
-        if (currentBowlWeight < (lastBowlWeight - 2.0f)) {  // 2g decrease threshold
-            eatingStartTime = millis();
-            currentlyEating = true;
-            Serial.println("🐱 Eating detected!");
-        }
-    }
-    
-    // Check for overfeeding
-    if (currentlyFull) {
-        detectOverfeeding();
-    }
-    
-    // Update last weight
-    lastBowlWeight = currentBowlWeight;
-    
-    // Print status periodically
-    static unsigned long lastStatusPrint = 0;
-    if (millis() - lastStatusPrint >= 30000) {  // Every 30 seconds
-        Serial.println("=== BOWL STATUS ===");
-        Serial.print("Current weight: ");
-        Serial.print(currentBowlWeight);
-        Serial.println("g");
-        
-        Serial.print("Status: ");
-        if (currentlyEmpty) {
-            Serial.println("EMPTY");
-        } else if (currentlyFull) {
-            Serial.println("FULL");
-        } else {
-            Serial.println("NORMAL");
-        }
-        
-        if (currentlyEating) {
-            Serial.println("Cat is currently eating");
-        }
-        
-        unsigned long emptyDuration = getBowlEmptyDuration();
-        if (emptyDuration > 0) {
-            Serial.print("Empty for: ");
-            Serial.print(emptyDuration / 1000);
-            Serial.println(" seconds");
-        }
-        
-        lastStatusPrint = millis();
-    }
-}
-
-void trackEatingDuration() {
-    if (currentlyEating) {
-        unsigned long currentDuration = millis() - eatingStartTime;
-        
-        // Log eating progress every 10 seconds
-        static unsigned long lastEatingLog = 0;
-        if (millis() - lastEatingLog >= 10000) {
-            Serial.print("🐱 Eating for ");
-            Serial.print(currentDuration / 1000);
-            Serial.print(" seconds. Consumed: ");
-            Serial.print(calculateFoodConsumed());
-            Serial.println("g");
-            lastEatingLog = millis();
-        }
-        
-        // Check for very long eating sessions (possible issue)
-        if (currentDuration > 300000) {  // 5 minutes
-            Serial.println("⚠️ WARNING: Very long eating session detected");
-            Serial.println("Check if cat is having difficulty eating");
-        }
+        // Could trigger emergency stop here
+        // emergencyStop();
     }
 }
 
 void preventDispenseIfFull() {
     if (isBowlFull()) {
-        Serial.println("🚫 FEEDING PREVENTED - Bowl is full");
+        Serial.println("PREVENTION: Bowl is full - dispensing blocked");
         Serial.print("Current bowl weight: ");
         Serial.print(readBowlWeight());
         Serial.print("g (full threshold: ");
         Serial.print(BOWL_FULL_THRESHOLD);
         Serial.println("g)");
         
-        Serial.println("Waiting for cat to eat before next feeding...");
+        // Could flash LED or show message on display
+        blinkStatusLED(5);
+        
+        // Log the prevention event
+        Serial.println("Overfeeding prevention activated");
     }
 }
 
-void printSensorStatus() {
-    Serial.println("=== WEIGHT SENSOR STATUS ===");
-    
-    float bowlWeight = readBowlWeight();
-    float tankWeight = readTankWeight();
-    
-    Serial.print("Bowl: ");
-    Serial.print(bowlWeight);
-    Serial.print("g ");
-    
-    if (isBowlEmpty()) {
-        Serial.print("(EMPTY)");
-    } else if (isBowlFull()) {
-        Serial.print("(FULL)");
-    } else {
-        Serial.print("(NORMAL)");
-    }
-    Serial.println();
-    
-    Serial.print("Tank: ");
-    Serial.print(tankWeight);
-    Serial.print("g ");
-    
-    if (isTankLow()) {
-        Serial.print("(LOW - REFILL NEEDED)");
-    } else {
-        Serial.print("(OK)");
-    }
-    Serial.println();
-    
-    // Tank level percentage
-    float tankPercentage = (tankWeight / TANK_CAPACITY) * 100.0f;
-    Serial.print("Tank level: ");
-    Serial.print(tankPercentage);
-    Serial.println("%");
-    
-    if (currentlyEating) {
-        Serial.println("🐱 Cat is currently eating");
-        Serial.print("Eating duration: ");
-        Serial.print((millis() - eatingStartTime) / 1000);
-        Serial.println(" seconds");
-    }
-    
-    unsigned long emptyDuration = getBowlEmptyDuration();
-    if (emptyDuration > 0) {
-        Serial.print("Bowl empty for: ");
-        Serial.print(emptyDuration / 1000);
-        Serial.println(" seconds");
-    }
-    
-    Serial.println("============================");
-}
-
+// Update sensor readings and simulate eating
 void updateSensorReadings() {
-    // Call this function regularly in your main loop
-    monitorBowlStatus();
-    trackEatingDuration();
+    // Simulate gradual eating
+    simulateEating();
     
-    // Check tank level periodically
-    static unsigned long lastTankCheck = 0;
-    if (millis() - lastTankCheck >= 60000) {  // Check every minute
-        if (isTankLow()) {
-            Serial.println("🚨 LOW FOOD TANK - Please refill!");
-            Serial.print("Current tank weight: ");
-            Serial.print(readTankWeight());
-            Serial.println("g");
+    // Monitor bowl status
+    monitorBowlStatus();
+    
+    // Check for tank level
+    if (isTankLow()) {
+        static unsigned long lastLowTankWarning = 0;
+        if (millis() - lastLowTankWarning > 30000) { // Warn every 30 seconds
+            Serial.println("WARNING: Food tank is low! Please refill.");
+            lastLowTankWarning = millis();
         }
-        lastTankCheck = millis();
     }
+}
+
+// Simulate eating behavior for testing
+void simulateEating() {
+    static unsigned long lastEatingSimulation = 0;
+    static bool simulatingEating = false;
+    static unsigned long eatingStartTime = 0;
+    
+    // Start eating simulation randomly
+    if (!simulatingEating && millis() - lastEatingSimulation > 30000 && random(100) < 5) { // 5% chance every check
+        if (bowlWeight > BOWL_EMPTY_THRESHOLD) {
+            simulatingEating = true;
+            eatingStartTime = millis();
+            Serial.println("🐱 Cat started eating (simulation)");
+        }
+    }
+    
+    // Continue eating simulation
+    if (simulatingEating) {
+        unsigned long eatingDuration = millis() - eatingStartTime;
+        
+        // Eat for 10-30 seconds
+        if (eatingDuration < 30000 && bowlWeight > BOWL_EMPTY_THRESHOLD) {
+            // Reduce bowl weight gradually (0.1g per second)
+            bowlWeight -= 0.1;
+            if (bowlWeight < 0) bowlWeight = 0;
+        } else {
+            // Stop eating
+            simulatingEating = false;
+            lastEatingSimulation = millis();
+            Serial.println("🐱 Cat finished eating (simulation)");
+        }
+    }
+    
+    // Simulate tank depletion when food is dispensed
+    // This would be handled in the feeding functions in real implementation
+}
+
+// Print current sensor status
+void printSensorStatus() {
+    Serial.println("=== SENSOR STATUS ===");
+    
+    float bowlWt = readBowlWeight();
+    float tankWt = readTankWeight();
+    
+    Serial.print("Bowl weight: ");
+    Serial.print(bowlWt);
+    Serial.println("g");
+    
+    Serial.print("Tank weight: ");
+    Serial.print(tankWt);
+    Serial.println("g");
+    
+    Serial.print("Bowl status: ");
+    if (isBowlEmpty()) {
+        Serial.println("EMPTY");
+    } else if (isBowlFull()) {
+        Serial.println("FULL");
+    } else {
+        Serial.println("NORMAL");
+    }
+    
+    Serial.print("Tank status: ");
+    if (isTankLow()) {
+        Serial.println("LOW - REFILL NEEDED");
+    } else {
+        Serial.println("OK");
+    }
+    
+    if (bowlWasEmpty) {
+        Serial.print("Bowl empty for: ");
+        Serial.print(getBowlEmptyDuration() / 1000);
+        Serial.println(" seconds");
+    }
+    
+    if (isEating) {
+        Serial.println("Cat is currently eating");
+    }
+    
+    Serial.println("=====================");
+}
+
+// Helper function to add food to bowl (for testing)
+void addFoodToBowl(float amount) {
+    bowlWeight += amount;
+    tankWeight -= amount; // Reduce tank weight
+    if (tankWeight < 0) tankWeight = 0;
+    
+    Serial.print("Added ");
+    Serial.print(amount);
+    Serial.println("g to bowl");
+    Serial.print("New bowl weight: ");
+    Serial.print(bowlWeight);
+    Serial.println("g");
+    Serial.print("New tank weight: ");
+    Serial.print(tankWeight);
+    Serial.println("g");
+}
+
+// Helper function to refill tank (for testing)
+void refillTank() {
+    tankWeight = 1500.0; // Full tank
+    Serial.println("Tank refilled to 1500g");
 }
