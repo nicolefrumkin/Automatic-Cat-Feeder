@@ -57,20 +57,6 @@
       "top": 43.4,
       "left": -269.8,
       "attrs": { "travelLength": "30" }
-    },
-    {
-      "type": "wokwi-text",
-      "id": "text1",
-      "top": -278.4,
-      "left": 240,
-      "attrs": { "text": "Bowl Weight Sensor" }
-    },
-    {
-      "type": "wokwi-text",
-      "id": "text2",
-      "top": -105.6,
-      "left": 278.4,
-      "attrs": { "text": "Tank Weight Sensor" }
     }
   ],
   "connections": [

@@ -1,3 +1,7 @@
+#pragma once
+
+#include <Arduino.h>
+
 // Core feeding operations
 void dispenseFood(int amount);
 void openFeederGate(int degrees);
@@ -17,3 +21,6 @@ int calculatePortion();
 int getMinPortion();
 int getMaxPortion();
 void adjustPortionSize(int change);
+
+// Helper function for success indication
+void indicateFeedingSuccess();
