@@ -44,59 +44,105 @@ void setup() {
   delay(1000);
 }
 
+// REPLACE your entire loop() function in main.cpp with this:
+
 void loop() {
-  updateBlinkingLED();
-  updateSensorReadings();
-  checkInputs();
-  String command = getSerialCommand();
-  if (command.length() > 0) {
-    handleSerialInput(command);
-  }
-  updateSystemState();
-  updateDayCycle();
-
-  if (isSystemInEmergencyMode()) {
-    // Already in emergency mode — don't repeat feeding error handling
-    static bool alreadyHandled = false;
-    if (!alreadyHandled) {
-      displayEmergencyMessage("Emergency Stop");
-      emergencyStop();
-      alreadyHandled = true;
+    // Basic heartbeat (fast)
+    updateBlinkingLED();
+    
+    // Update sensor readings (includes eating simulation) - LESS FREQUENT
+    static unsigned long lastSensorUpdate = 0;
+    if (millis() - lastSensorUpdate > 2000) { // Every 2 seconds
+        updateSensorReadings();
+        lastSensorUpdate = millis();
     }
-    return; // Skip rest of loop
-  }
+    
+    // Check inputs - LESS FREQUENT
+    static unsigned long lastInputCheck = 0;
+    if (millis() - lastInputCheck > 500) { // Every 500ms
+        checkInputs();
+        lastInputCheck = millis();
+    }
+    
+    // Update system state - LESS FREQUENT  
+    static unsigned long lastStateUpdate = 0;
+    if (millis() - lastStateUpdate > 1000) { // Every 1 second
+        updateSystemState();
+        lastStateUpdate = millis();
+    }
+    
+    // Day cycle updates - LESS FREQUENT
+    static unsigned long lastDayUpdate = 0;
+    if (millis() - lastDayUpdate > 5000) { // Every 5 seconds
+        updateDayCycle();
+        lastDayUpdate = millis();
+    }
 
-  // Safety checks before any feeding operations
-  if (!performSafetyChecks()) {
-    handleFeedingError();
-    return; // Skip feeding if safety check fails
-  }
+    // Emergency check
+    if (isSystemInEmergencyMode()) {
+        displayEmergencyMessage("Emergency Stop");
+        delay(1000);
+        return;
+    }
 
-  // Handle mode-specific logic
-  switch (getCurrentMode()) {
-    case SCHEDULED:
-      runScheduledMode();
-      break;
-    case MANUAL:
-      runManualMode();
-      break;
-  }
+    // Safety checks - MUCH LESS FREQUENT
+    static unsigned long lastSafetyCheck = 0;
+    if (millis() - lastSafetyCheck > 30000) { // Every 30 seconds
+        if (!performSafetyChecks()) {
+            Serial.println("Safety checks failed");
+            handleFeedingError();
+        }
+        lastSafetyCheck = millis();
+    }
 
-  processAdaptiveBehavior();
-  updateDisplay();
+    // Mode-specific logic - LESS FREQUENT
+    static unsigned long lastModeCheck = 0;
+    if (millis() - lastModeCheck > 10000) { // Every 10 seconds (REDUCED FREQUENCY)
+        switch (getCurrentMode()) {
+            case SCHEDULED:
+                runScheduledMode();
+                break;
+            case MANUAL:
+                runManualMode();
+                break;
+        }
+        lastModeCheck = millis();
+    }
 
-  // Communication and monitoring
-  publishSystemStatus();
-  handleMQTTReconnect();
+    // Adaptive behavior checks - MUCH LESS FREQUENT
+    static unsigned long lastAdaptiveCheck = 0;
+    if (millis() - lastAdaptiveCheck > 120000) { // Every 2 MINUTES
+        processAdaptiveBehavior();
+        lastAdaptiveCheck = millis();
+    }
 
-  // Simulate cat eating behavior for testing
-  randomizeEatingBehavior();
-  
-  // Periodic health check
-  performHealthCheck();
+    // Update display - LESS FREQUENT
+    static unsigned long lastDisplayUpdate = 0;
+    if (millis() - lastDisplayUpdate > 5000) { // Every 5 seconds
+        updateDisplay();
+        lastDisplayUpdate = millis();
+    }
+    
+    // MQTT updates - LESS FREQUENT
+    static unsigned long lastMQTTUpdate = 0;
+    if (millis() - lastMQTTUpdate > 15000) { // Every 15 seconds
+        publishSystemStatus();
+        handleMQTTReconnect();
+        lastMQTTUpdate = millis();
+    }
 
-  // Small delay to prevent overwhelming the system
-  delay(100);
+    // Simulation for cat eating - LESS FREQUENT
+    static unsigned long lastEatingSimulation = 0;
+    if (millis() - lastEatingSimulation > 3000) { // Every 3 seconds
+        randomizeEatingBehavior();
+        lastEatingSimulation = millis();
+    }
+    
+    // ADD THE PERIODIC STATUS HERE (replaces spam)
+    printPeriodicStatus();
+    
+    // Add a small delay to prevent overwhelming the system
+    delay(100); // 100ms delay between loop iterations
 }
 
 // Handle serial input commands for debugging and control

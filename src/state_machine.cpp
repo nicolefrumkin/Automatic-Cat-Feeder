@@ -9,6 +9,7 @@
 #include "utils.h"
 #include "communication.h"
 #include "safety.h"
+#include "timing.h"
 
 // System state management
 static FeedingMode currentMode = MANUAL;
@@ -86,14 +87,27 @@ void handleModeSwitch() {
     setFeedingMode(newMode);
 }
 
-void runScheduledMode() {
-    Serial.println("Running in scheduled mode");
-    // Implementation would check time and feed if scheduled
+void runManualMode() {
+    // Only print this occasionally
+    static unsigned long lastModeMsg = 0;
+    if (millis() - lastModeMsg > 10000) { // Every 10 seconds
+        Serial.println("System running in MANUAL mode - press button to feed");
+        lastModeMsg = millis();
+    }
 }
 
-void runManualMode() {
-    Serial.println("Running in manual mode");
-    // Implementation would respond to button presses
+void runScheduledMode() {
+    // Only print this occasionally  
+    static unsigned long lastModeMsg = 0;
+    if (millis() - lastModeMsg > 10000) { // Every 10 seconds
+        Serial.println("System running in SCHEDULED mode");
+        lastModeMsg = millis();
+    }
+    
+    // Check if it's time for scheduled feeding
+    if (isScheduledFeedTime()) {
+        executeScheduledFeed();
+    }
 }
 
 void performDailyMaintenance() {

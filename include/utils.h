@@ -7,3 +7,4 @@ int mapPotToGrams(int potValue);
 void playFeedingSound();
 void delay_ms(int milliseconds);
 bool isWithinRange(float value, float min, float max);
+void printPeriodicStatus();

@@ -2,7 +2,7 @@
 // Project configuration and constants
 #define OLED_SDA 21
 #define OLED_SCL 22
-#define SERVO_PIN 18
+#define SERVO_PIN 13
 #define BUTTON_PIN 25
 #define SWITCH_PIN 26
 #define POT_PIN 32

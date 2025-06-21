@@ -1,3 +1,5 @@
+extern unsigned long lastSensorUpdate;
+
 // Weight sensor management
 void initializeWeightSensors();
 float readBowlWeight();
