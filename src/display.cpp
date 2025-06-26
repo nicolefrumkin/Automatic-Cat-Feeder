@@ -211,11 +211,7 @@ void displayModeStatus() {
     display.setCursor(0, 40);
     display.print("Servo: ");
     display.println(isServoReady() ? "READY" : "NOT READY");
-    
-    display.setCursor(0, 50);
-    display.print("Emergency: ");
-    display.println(isSystemInEmergencyMode() ? "YES" : "NO");
-    
+
     display.display();
 }
 

@@ -6,11 +6,7 @@
 #include <Adafruit_SSD1306.h>
 #include <ESP32Servo.h>
 
-void emergencyStop();
 void performHealthCheck();
-bool isSystemInEmergencyMode();
-void clearEmergencyMode();
-bool hasSensorTimeout();
 
 // OLED display object
 #define SCREEN_WIDTH 128
@@ -631,54 +627,6 @@ void printInputStates() {
   }
 }
 
-void emergencyStop() {
-  Serial.println("!!! EMERGENCY STOP ACTIVATED !!!");
-
-  // Immediate actions - no delays
-
-  // 1. Stop servo movement - move to safe closed position
-  if (servoAttached) {
-    feederServo.write(SERVO_CLOSED_POS);
-    currentServoPosition = SERVO_CLOSED_POS;
-  }
-
-  // 2. Turn off status LED to indicate stopped state
-  digitalWrite(LED_PIN, LOW);
-  currentLEDState = false;
-
-  // 3. Set emergency flag
-  systemInEmergencyMode = true;
-
-  // 4. Clear display and show emergency message
-  display.clearDisplay();
-  display.setTextSize(2);  // Larger text for emergency
-  display.setTextColor(SSD1306_WHITE);
-  display.setCursor(0, 0);
-  display.println("EMERGENCY");
-  display.println("STOP!");
-  display.setTextSize(1);
-  display.setCursor(0, 40);
-  display.println("System halted");
-  display.println("Check hardware");
-  display.display();
-
-  // 5. Log emergency stop
-  Serial.println("Emergency stop reasons:");
-  Serial.print("- System in emergency mode: ");
-  Serial.println(systemInEmergencyMode ? "YES" : "NO");
-  Serial.print("- Consecutive failures: ");
-  Serial.println(consecutiveFailures);
-  Serial.print("- Last valid sensor reading: ");
-  Serial.print((millis() - lastValidSensorReading) / 1000);
-  Serial.println(" seconds ago");
-
-  // 6. Provide recovery instructions
-  Serial.println("RECOVERY OPTIONS:");
-  Serial.println("1. Send 'reset' command via serial");
-  Serial.println("2. Power cycle the device");
-  Serial.println("3. Check all hardware connections");
-}
-
 // Periodic health check function (call in main loop)
 void performHealthCheck() {
   static unsigned long lastHealthCheck = 0;
@@ -689,21 +637,4 @@ void performHealthCheck() {
     Serial.println("Performing periodic health check...");
     lastHealthCheck = currentTime;
   }
-}
-
-bool isSystemInEmergencyMode() {
-  extern bool systemInEmergencyMode;
-  return systemInEmergencyMode;
-}
-
-void clearEmergencyMode() {
-  extern bool systemInEmergencyMode;
-  systemInEmergencyMode = false;
-  Serial.println("Emergency mode cleared manually");
-}
-
-bool hasSensorTimeout() {
-  extern unsigned long lastValidSensorReading;
-  extern const unsigned long SENSOR_TIMEOUT_MS;
-  return (millis() - lastValidSensorReading) > SENSOR_TIMEOUT_MS;
 }

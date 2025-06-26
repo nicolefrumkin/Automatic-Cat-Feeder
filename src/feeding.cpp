@@ -25,32 +25,25 @@ int calculatePortion() {
 }
 
 bool canDispenseFood() {
-    // Safety check 1: Minimum time between feeds
+    // Safety check : Minimum time between feeds
     if (millis() - lastFeedTime < MIN_FEED_INTERVAL) {
         Serial.println("SAFETY: Too soon since last feed");
         return false;
     }
     
-    // Safety check 2: Servo must be ready
+    // Safety check : Servo must be ready
     if (!isServoReady()) {
         Serial.println("SAFETY: Servo not ready");
         return false;
     }
-    
-    // Safety check 3: System not in emergency mode
-    if (isSystemInEmergencyMode()) {
-        Serial.println("SAFETY: System in emergency mode");
-        return false;
-    }
-    
-    // Safety check 4: Bowl not full
+    // Safety check : Bowl not full
     if (isBowlFull()) {
         Serial.println("SAFETY: Bowl is full - prevent overfeeding");
         preventDispenseIfFull();
         return false;
     }
     
-    // Safety check 5: Tank not empty
+    // Safety check : Tank not empty
     if (isTankLow()) {
         Serial.println("SAFETY: Food tank is low - refill needed");
         return false;
@@ -155,9 +148,6 @@ void validateFeedingConditions() {
     
     Serial.print("Servo ready: ");
     Serial.println(isServoReady() ? "YES" : "NO");
-    
-    Serial.print("Emergency mode: ");
-    Serial.println(isSystemInEmergencyMode() ? "YES" : "NO");
     
     Serial.print("Current portion setting: ");
     Serial.print(calculatePortion());

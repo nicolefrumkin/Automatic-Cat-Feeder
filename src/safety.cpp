@@ -10,25 +10,19 @@ bool performSafetyChecks() {
     
     bool safe = true;
     
-    // Check 1: System not in emergency mode
-    if (isSystemInEmergencyMode()) {
-        Serial.println("SAFETY FAIL: System in emergency mode");
-        safe = false;
-    }
-    
-    // Check 2: Servo is ready
+    // Check : Servo is ready
     if (!isServoReady()) {
         Serial.println("SAFETY FAIL: Servo not ready");
         safe = false;
     }
     
-    // Check 3: Bowl not overfull
+    // Check : Bowl not overfull
     if (isBowlFull()) {
         Serial.println("SAFETY WARNING: Bowl is full");
         // Not a complete failure, but worth noting
     }
     
-    // Check 4: Tank has food
+    // Check : Tank has food
     if (isTankLow()) {
         Serial.println("SAFETY WARNING: Tank is low");
         // Not a complete failure, but worth noting

@@ -77,13 +77,6 @@ void loop() {
         lastDayUpdate = millis();
     }
 
-    // Emergency check
-    if (isSystemInEmergencyMode()) {
-        displayEmergencyMessage("Emergency Stop");
-        delay(1000);
-        return;
-    }
-
     // Safety checks - MUCH LESS FREQUENT
     static unsigned long lastSafetyCheck = 0;
     if (millis() - lastSafetyCheck > 30000) { // Every 30 seconds
@@ -161,13 +154,6 @@ void handleSerialInput(String command) {
   }
   else if (command == "test servo") {
     calibrateServo();
-  }
-  else if (command == "emergency") {
-    emergencyStop();
-  }
-  else if (command == "clear emergency") {
-    clearEmergencyMode();
-    setSystemState(IDLE);
   }
   else if (command == "sensors") {
     printSensorStatus();

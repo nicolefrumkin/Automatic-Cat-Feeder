@@ -18,9 +18,6 @@ void printSystemStatus() {
     Serial.print("Servo: ");
     Serial.println(isServoReady() ? "READY" : "NOT READY");
     
-    Serial.print("Emergency: ");
-    Serial.println(isSystemInEmergencyMode() ? "ACTIVE" : "NORMAL");
-    
     printSensorStatus();
     
     Serial.println("============================");

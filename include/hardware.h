@@ -4,7 +4,6 @@
 #include "config.h"
 
 // Existing declarations (e.g., initializeHardware, etc.)
-bool isSystemInEmergencyMode();
 void clearEmergencyMode();
 void initializeHardware();
 void initializeOLED();
@@ -25,7 +24,6 @@ void indicateFeedingError();
 void indicateLowFood();
 void indicateWiFiConnecting();
 void indicateWiFiConnected();
-bool isSystemInEmergencyMode();
 void clearEmergencyMode();
 bool hasSensorTimeout();
 int readPotentiometer();

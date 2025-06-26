@@ -47,9 +47,7 @@ void handleStateTransition() {
     // Handle state transitions based on current conditions
     switch(currentState) {
         case IDLE:
-            if (isSystemInEmergencyMode()) {
-                setSystemState(ERROR);
-            } else if (readFeedButton()) {
+            if (readFeedButton()) {
                 setSystemState(FEEDING);
             }
             break;
