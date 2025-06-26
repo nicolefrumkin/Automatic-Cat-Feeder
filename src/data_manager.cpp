@@ -2,12 +2,6 @@
 #include "config.h"
 #include "hardware.h"
 #include "sensors.h"
-#include <EEPROM.h>
-
-// EEPROM Memory Layout
-#define EEPROM_SIZE 512
-#define EEPROM_MAGIC_NUMBER 0xCAFE
-#define EEPROM_VERSION 1
 
 // Memory addresses
 #define ADDR_MAGIC 0                    // 2 bytes - Magic number for validation
@@ -31,10 +25,6 @@ bool validateSettings(SystemSettings* settings);
 void compactFeedingLog();
 String modeCodeToString(uint8_t code);
 uint8_t stringToModeCode(String mode);
-void saveFeedingData();
-void loadFeedingData();
-void saveToEEPROM();
-void loadFromEEPROM();
 
 // Helper functions first
 void initializeDefaultSettings() {
@@ -128,204 +118,12 @@ float getTotalFoodConsumed24h() {
     return total;
 }
 
-void saveFeedingData() {
-    Serial.println("Saving feeding data to EEPROM...");
-    
-    // Save feeding event count
-    EEPROM.writeUShort(ADDR_FEEDING_COUNT, feedingEventCount);
-    
-    // Save feeding events (only store essential data to save space)
-    int addr = ADDR_FEEDING_EVENTS;
-    for (int i = 0; i < feedingEventCount && i < 50; i++) {
-        FeedingEvent* event = &feedingLog[i];
-        
-        // Store timestamp (4 bytes)
-        EEPROM.writeULong(addr, event->timestamp);
-        addr += 4;
-        
-        // Store mode code (1 byte)
-        EEPROM.writeByte(addr, event->modeCode);
-        addr += 1;
-        
-        // Store quantity (2 bytes)
-        EEPROM.writeUShort(addr, event->quantity);
-        addr += 2;
-        
-        // Store consumed amount as int (2 bytes, multiply by 10 for decimal precision)
-        EEPROM.writeUShort(addr, (int)(event->consumed * 10));
-        addr += 2;
-        
-        // Total: 9 bytes per event, max 50 events = 450 bytes (fits in allocated space)
-    }
-    
-    EEPROM.commit();
-    lastSaveTime = millis();
-    
-    Serial.print("Saved ");
-    Serial.print(feedingEventCount);
-    Serial.println(" feeding events to EEPROM");
-}
-
-void loadFeedingData() {
-    Serial.println("Loading feeding data from EEPROM...");
-    
-    // Load feeding event count
-    feedingEventCount = EEPROM.readUShort(ADDR_FEEDING_COUNT);
-    
-    if (feedingEventCount > 50) {
-        Serial.println("Invalid feeding count in EEPROM, resetting...");
-        feedingEventCount = 0;
-        return;
-    }
-    
-    // Load feeding events
-    int addr = ADDR_FEEDING_EVENTS;
-    for (int i = 0; i < feedingEventCount; i++) {
-        FeedingEvent* event = &feedingLog[i];
-        
-        // Load timestamp
-        event->timestamp = EEPROM.readULong(addr);
-        addr += 4;
-        
-        // Load mode code
-        event->modeCode = EEPROM.readByte(addr);
-        addr += 1;
-        
-        // Load quantity
-        event->quantity = EEPROM.readUShort(addr);
-        addr += 2;
-        
-        // Load consumed amount
-        event->consumed = EEPROM.readUShort(addr) / 10.0;
-        addr += 2;
-        
-        // Reconstruct mode string
-        event->mode = modeCodeToString(event->modeCode);
-        
-        // Set default values for fields not stored
-        event->bowlWeightBefore = 0.0;
-        event->bowlWeightAfter = 0.0;
-        event->eatingDuration = 0;
-    }
-    
-    Serial.print("Loaded ");
-    Serial.print(feedingEventCount);
-    Serial.println(" feeding events from EEPROM");
-}
-
-void saveToEEPROM() {
-    Serial.println("=== SAVING ALL DATA TO EEPROM ===");
-    
-    // Write magic number and version
-    EEPROM.writeUShort(ADDR_MAGIC, EEPROM_MAGIC_NUMBER);
-    EEPROM.writeByte(ADDR_VERSION, EEPROM_VERSION);
-    
-    // Calculate and save settings checksum
-    currentSettings.checksum = calculateChecksum(&currentSettings);
-    
-    // Save settings
-    int addr = ADDR_SETTINGS;
-    EEPROM.writeInt(addr, currentSettings.defaultPortion);
-    addr += 4;
-    EEPROM.writeULong(addr, currentSettings.feedingInterval);
-    addr += 4;
-    EEPROM.writeFloat(addr, currentSettings.bowlFullThreshold);
-    addr += 4;
-    EEPROM.writeFloat(addr, currentSettings.bowlEmptyThreshold);
-    addr += 4;
-    EEPROM.writeFloat(addr, currentSettings.tankLowThreshold);
-    addr += 4;
-    EEPROM.writeByte(addr, currentSettings.adaptiveFeedingEnabled ? 1 : 0);
-    addr += 1;
-    EEPROM.writeByte(addr, currentSettings.checksum);
-    
-    // Save feeding data
-    saveFeedingData();
-    
-    EEPROM.commit();
-    Serial.println("All data saved to EEPROM successfully!");
-}
-
-void loadFromEEPROM() {
-    Serial.println("=== LOADING DATA FROM EEPROM ===");
-    
-    // Check magic number
-    uint16_t magic = EEPROM.readUShort(ADDR_MAGIC);
-    if (magic != EEPROM_MAGIC_NUMBER) {
-        Serial.println("Invalid magic number, EEPROM data not valid");
-        dataLoaded = false;
-        return;
-    }
-    
-    // Check version
-    uint8_t version = EEPROM.readByte(ADDR_VERSION);
-    if (version != EEPROM_VERSION) {
-        Serial.print("Version mismatch: expected ");
-        Serial.print(EEPROM_VERSION);
-        Serial.print(", found ");
-        Serial.println(version);
-        dataLoaded = false;
-        return;
-    }
-    
-    // Load settings
-    int addr = ADDR_SETTINGS;
-    currentSettings.defaultPortion = EEPROM.readInt(addr);
-    addr += 4;
-    currentSettings.feedingInterval = EEPROM.readULong(addr);
-    addr += 4;
-    currentSettings.bowlFullThreshold = EEPROM.readFloat(addr);
-    addr += 4;
-    currentSettings.bowlEmptyThreshold = EEPROM.readFloat(addr);
-    addr += 4;
-    currentSettings.tankLowThreshold = EEPROM.readFloat(addr);
-    addr += 4;
-    currentSettings.adaptiveFeedingEnabled = EEPROM.readByte(addr) == 1;
-    addr += 1;
-    currentSettings.checksum = EEPROM.readByte(addr);
-    
-    // Validate settings
-    if (!validateSettings(&currentSettings)) {
-        Serial.println("Settings validation failed, using defaults");
-        initializeDefaultSettings();
-        dataLoaded = false;
-        return;
-    }
-    
-    // Load feeding data
-    loadFeedingData();
-    
-    dataLoaded = true;
-    Serial.println("Data loaded from EEPROM successfully!");
-    
-    // Print loaded settings
-    Serial.println("Loaded settings:");
-    Serial.print("  Default portion: ");
-    Serial.print(currentSettings.defaultPortion);
-    Serial.println("g");
-    Serial.print("  Feeding interval: ");
-    Serial.print(currentSettings.feedingInterval / 1000);
-    Serial.println("s");
-    Serial.print("  Adaptive feeding: ");
-    Serial.println(currentSettings.adaptiveFeedingEnabled ? "ENABLED" : "DISABLED");
-}
-
 // Main interface functions
 void initializeDataManager() {
     Serial.println("=== INITIALIZING DATA MANAGER ===");
     
-    // Initialize EEPROM
-    EEPROM.begin(EEPROM_SIZE);
-    
-    // Try to load existing data
-    loadFromEEPROM();
-    
-    if (!dataLoaded) {
-        Serial.println("No valid data found, initializing defaults...");
-        initializeDefaultSettings();
-        saveToEEPROM();
-    }
-    
+    initializeDefaultSettings();
+
     Serial.println("Data manager initialized successfully!");
     Serial.print("Feeding events in log: ");
     Serial.println(feedingEventCount);
@@ -362,11 +160,6 @@ void logFeedingEvent(String mode, int quantity) {
     Serial.print("Bowl weight before: ");
     Serial.print(event->bowlWeightBefore);
     Serial.println("g");
-    
-    // Auto-save if it's been a while
-    if (millis() - lastSaveTime > AUTO_SAVE_INTERVAL) {
-        saveFeedingData();
-    }
     
     Serial.println("Event logged successfully!");
 }
@@ -512,71 +305,7 @@ void printFeedingHistory() {
     }
 }
 
-void clearMemory() {
-    Serial.println("=== CLEARING ALL MEMORY ===");
-    
-    // Clear EEPROM
-    for (int i = 0; i < EEPROM_SIZE; i++) {
-        EEPROM.writeByte(i, 0xFF);
-    }
-    EEPROM.commit();
-    
-    // Clear feeding log
-    feedingEventCount = 0;
-    
-    // Reset to default settings
-    initializeDefaultSettings();
-    
-    Serial.println("All memory cleared and reset to defaults!");
-}
 
-void backupSettings() {
-    Serial.println("=== BACKING UP SETTINGS ===");
-    
-    Serial.println("Current settings backup:");
-    Serial.print("defaultPortion=");
-    Serial.println(currentSettings.defaultPortion);
-    Serial.print("feedingInterval=");
-    Serial.println(currentSettings.feedingInterval);
-    Serial.print("bowlFullThreshold=");
-    Serial.println(currentSettings.bowlFullThreshold);
-    Serial.print("bowlEmptyThreshold=");
-    Serial.println(currentSettings.bowlEmptyThreshold);
-    Serial.print("tankLowThreshold=");
-    Serial.println(currentSettings.tankLowThreshold);
-    Serial.print("adaptiveFeedingEnabled=");
-    Serial.println(currentSettings.adaptiveFeedingEnabled);
-    
-    Serial.println("Settings backed up to serial output!");
-    Serial.println("Copy the above values to restore settings later");
-}
-
-void loadSettings() {
-    Serial.println("=== LOADING SETTINGS ===");
-    Serial.println("Current settings:");
-    Serial.print("  Default portion: ");
-    Serial.print(currentSettings.defaultPortion);
-    Serial.println("g");
-    Serial.print("  Feeding interval: ");
-    Serial.print(currentSettings.feedingInterval / 1000);
-    Serial.println("s");
-    Serial.print("  Bowl full threshold: ");
-    Serial.print(currentSettings.bowlFullThreshold);
-    Serial.println("g");
-    Serial.print("  Bowl empty threshold: ");
-    Serial.print(currentSettings.bowlEmptyThreshold);
-    Serial.println("g");
-    Serial.print("  Tank low threshold: ");
-    Serial.print(currentSettings.tankLowThreshold * 100);
-    Serial.println("%");
-    Serial.print("  Adaptive feeding: ");
-    Serial.println(currentSettings.adaptiveFeedingEnabled ? "ENABLED" : "DISABLED");
-}
-
-// Public accessor functions for settings
-SystemSettings* getSettings() {
-    return &currentSettings;
-}
 
 void updateSetting(String setting, float value) {
     if (setting == "defaultPortion") {
@@ -592,9 +321,6 @@ void updateSetting(String setting, float value) {
     } else if (setting == "adaptiveFeedingEnabled") {
         currentSettings.adaptiveFeedingEnabled = (value != 0);
     }
-    
-    // Auto-save after setting update
-    saveToEEPROM();
     
     Serial.print("Updated setting: ");
     Serial.print(setting);

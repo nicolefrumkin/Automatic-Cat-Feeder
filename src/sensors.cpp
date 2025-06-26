@@ -56,9 +56,7 @@ float readBowlWeight() {
   // Simulate HX711 reading with some noise and variation
   // In real implementation, this would read from HX711
 
-  // Add some random noise to make it realistic
-  float noise = (random(-50, 50) / 100.0); // ±0.5g noise
-  float reading = bowlWeight + noise;
+  float reading = bowlWeight;
 
   // Ensure reading is never negative - fix the max() issue
   if (reading < 0.0) {
@@ -72,9 +70,7 @@ float readTankWeight() {
   // Simulate tank weight reading
   // In real implementation, this would read from second HX711
 
-  // Add some random noise
-  float noise = (random(-100, 100) / 100.0); // ±1g noise
-  float reading = tankWeight + noise;
+  float reading = tankWeight;
 
   // Ensure reading is never negative - fix the max() issue
   if (reading < 0.0) {
@@ -90,9 +86,6 @@ void calibrateWeightSensors() {
   Serial.println("Starting calibration process...");
   Serial.println("1. Remove all items from bowl and tank areas");
   Serial.println("2. Press any key to continue...");
-
-  // Wait for user input (in real system)
-  delay(3000); // Simulate waiting
 
   // Zero calibration
   Serial.println("Calibrating zero points...");

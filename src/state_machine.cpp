@@ -116,9 +116,6 @@ void performDailyMaintenance() {
     // Check bowl status at end of day
     checkBowlStatusEndOfDay();
     
-    // Save data
-    saveToEEPROM();
-    
     // Analyze patterns
     analyzeFeedingPatterns();
     

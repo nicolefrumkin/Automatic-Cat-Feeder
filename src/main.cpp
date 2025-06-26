@@ -17,11 +17,10 @@ void handleSerialInput(String command);
 
 void setup() {
   Serial.begin(115200);
-  delay(1000); // Give serial time to initialize
 
   Serial.println("=== SMART CAT FEEDER STARTING ===");
   initializeHardware();
-  initializeServo(); // This was missing in the original main.cpp!
+  initializeServo(); 
   initializeWeightSensors();
   initializeOLED();
   initializeDataManager();
@@ -34,7 +33,7 @@ void setup() {
   displayWelcomeScreen();
 
   // Load settings and set initial states
-  loadSettings();
+
   setSystemState(IDLE);
   setFeedingMode(SCHEDULED);  // default mode
 
@@ -179,9 +178,7 @@ void handleSerialInput(String command) {
   else if (command == "history") {
     printFeedingHistory();
   }
-  else if (command == "settings") {
-    loadSettings();
-  }
+
   else if (command == "calibrate") {
     calibrateWeightSensors();
   }
