@@ -162,9 +162,6 @@ void handleSerialInput(String command) {
   else if (command == "test servo") {
     calibrateServo();
   }
-  else if (command == "reset") {
-    resetSystem();
-  }
   else if (command == "emergency") {
     emergencyStop();
   }

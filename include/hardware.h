@@ -34,8 +34,5 @@ bool readModeSwitch();
 String readSerialInput();
 String getSerialCommand(); 
 void emergencyStop();      
-bool validateSensorReadings(); 
-void handleHardwareFailure();
-void resetSystem();
 void performHealthCheck();
 void printInputStates();

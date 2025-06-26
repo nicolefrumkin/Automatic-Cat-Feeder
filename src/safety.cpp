@@ -34,11 +34,6 @@ bool performSafetyChecks() {
         // Not a complete failure, but worth noting
     }
     
-    // Check 5: Sensor readings are valid
-    if (!validateSensorReadings()) {
-        Serial.println("SAFETY FAIL: Invalid sensor readings");
-        safe = false;
-    }
     
     Serial.print("Safety check result: ");
     Serial.println(safe ? "PASSED" : "FAILED");

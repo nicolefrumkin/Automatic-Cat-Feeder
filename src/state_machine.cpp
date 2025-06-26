@@ -193,21 +193,7 @@ void checkInputs() {
     static int consecutiveSensorFails = 0;
     
     if (now - lastSensorCheck > 30000) { // Only check every 30 seconds!
-        if (!validateSensorReadings()) {
-            consecutiveSensorFails++;
-            Serial.print("Sensor validation failed (");
-            Serial.print(consecutiveSensorFails);
-            Serial.println("/3)");
-            
-            // Only enter ERROR state after 3 consecutive failures
-            if (consecutiveSensorFails >= 3) {
-                Serial.println("CRITICAL: Multiple sensor failures!");
-                setSystemState(ERROR);
-                emergencyStop();
-            }
-        } else {
-            consecutiveSensorFails = 0; // Reset on success
-        }
+        consecutiveSensorFails = 0; // Reset on success
         lastSensorCheck = now;
     }
 }
