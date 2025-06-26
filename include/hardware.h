@@ -4,7 +4,6 @@
 #include "config.h"
 
 // Existing declarations (e.g., initializeHardware, etc.)
-void clearEmergencyMode();
 void initializeHardware();
 void initializeOLED();
 void initializeServo();
@@ -24,13 +23,11 @@ void indicateFeedingError();
 void indicateLowFood();
 void indicateWiFiConnecting();
 void indicateWiFiConnected();
-void clearEmergencyMode();
-bool hasSensorTimeout();
 int readPotentiometer();
 bool readFeedButton();
 bool readModeSwitch();
 String readSerialInput();
 String getSerialCommand(); 
-void emergencyStop();      
+
 void performHealthCheck();
 void printInputStates();

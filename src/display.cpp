@@ -357,25 +357,6 @@ void showScreen(int screenNumber) {
     }
 }
 
-// Display emergency message
-void displayEmergencyMessage(String message) {
-    display.clearDisplay();
-    display.setTextSize(2);
-    display.setTextColor(SSD1306_WHITE);
-    display.setCursor(0, 0);
-    display.println("EMERGENCY");
-    
-    display.setTextSize(1);
-    display.setCursor(0, 25);
-    display.println(message);
-    
-    display.setCursor(0, 45);
-    display.println("System halted");
-    display.println("Check hardware");
-    
-    display.display();
-}
-
 // Display feeding in progress
 void displayFeedingInProgress(int amount) {
     display.clearDisplay();

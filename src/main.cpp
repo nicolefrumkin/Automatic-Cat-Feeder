@@ -46,95 +46,102 @@ void setup() {
 // REPLACE your entire loop() function in main.cpp with this:
 
 void loop() {
-    // Basic heartbeat (fast)
-    updateBlinkingLED();
     
-    // Update sensor readings (includes eating simulation) - LESS FREQUENT
-    static unsigned long lastSensorUpdate = 0;
-    if (millis() - lastSensorUpdate > 2000) { // Every 2 seconds
-        updateSensorReadings();
-        lastSensorUpdate = millis();
-    }
-    
-    // Check inputs - LESS FREQUENT
-    static unsigned long lastInputCheck = 0;
-    if (millis() - lastInputCheck > 500) { // Every 500ms
-        checkInputs();
-        lastInputCheck = millis();
-    }
-    
-    // Update system state - LESS FREQUENT  
-    static unsigned long lastStateUpdate = 0;
-    if (millis() - lastStateUpdate > 1000) { // Every 1 second
-        updateSystemState();
-        lastStateUpdate = millis();
-    }
-    
-    // Day cycle updates - LESS FREQUENT
-    static unsigned long lastDayUpdate = 0;
-    if (millis() - lastDayUpdate > 5000) { // Every 5 seconds
-        updateDayCycle();
-        lastDayUpdate = millis();
+  if (Serial.available() > 0) {         // Check if data is available
+    String input = Serial.readString(); // Read full string until timeout or newline
+    input.trim();                       // Remove any leading/trailing whitespace
+    handleSerialInput(input);           // Process the command
     }
 
-    // Safety checks - MUCH LESS FREQUENT
-    static unsigned long lastSafetyCheck = 0;
-    if (millis() - lastSafetyCheck > 30000) { // Every 30 seconds
-        if (!performSafetyChecks()) {
-            Serial.println("Safety checks failed");
-            handleFeedingError();
-        }
-        lastSafetyCheck = millis();
-    }
+  // Basic heartbeat (fast)
+  updateBlinkingLED();
+  
+  // Update sensor readings (includes eating simulation) - LESS FREQUENT
+  static unsigned long lastSensorUpdate = 0;
+  if (millis() - lastSensorUpdate > 2000) { // Every 2 seconds
+      updateSensorReadings();
+      lastSensorUpdate = millis();
+  }
+  
+  // Check inputs - LESS FREQUENT
+  static unsigned long lastInputCheck = 0;
+  if (millis() - lastInputCheck > 500) { // Every 500ms
+      checkInputs();
+      lastInputCheck = millis();
+  }
+  
+  // Update system state - LESS FREQUENT  
+  static unsigned long lastStateUpdate = 0;
+  if (millis() - lastStateUpdate > 1000) { // Every 1 second
+      updateSystemState();
+      lastStateUpdate = millis();
+  }
+  
+  // Day cycle updates - LESS FREQUENT
+  static unsigned long lastDayUpdate = 0;
+  if (millis() - lastDayUpdate > 5000) { // Every 5 seconds
+      updateDayCycle();
+      lastDayUpdate = millis();
+  }
 
-    // Mode-specific logic - LESS FREQUENT
-    static unsigned long lastModeCheck = 0;
-    if (millis() - lastModeCheck > 10000) { // Every 10 seconds (REDUCED FREQUENCY)
-        switch (getCurrentMode()) {
-            case SCHEDULED:
-                runScheduledMode();
-                break;
-            case MANUAL:
-                runManualMode();
-                break;
-        }
-        lastModeCheck = millis();
-    }
+  // Safety checks - MUCH LESS FREQUENT
+  static unsigned long lastSafetyCheck = 0;
+  if (millis() - lastSafetyCheck > 30000) { // Every 30 seconds
+      if (!performSafetyChecks()) {
+          Serial.println("Safety checks failed");
+          handleFeedingError();
+      }
+      lastSafetyCheck = millis();
+  }
 
-    // Adaptive behavior checks - MUCH LESS FREQUENT
-    static unsigned long lastAdaptiveCheck = 0;
-    if (millis() - lastAdaptiveCheck > 120000) { // Every 2 MINUTES
-        processAdaptiveBehavior();
-        lastAdaptiveCheck = millis();
-    }
+  // Mode-specific logic - LESS FREQUENT
+  static unsigned long lastModeCheck = 0;
+  if (millis() - lastModeCheck > 10000) { // Every 10 seconds (REDUCED FREQUENCY)
+      switch (getCurrentMode()) {
+          case SCHEDULED:
+              runScheduledMode();
+              break;
+          case MANUAL:
+              runManualMode();
+              break;
+      }
+      lastModeCheck = millis();
+  }
 
-    // Update display - LESS FREQUENT
-    static unsigned long lastDisplayUpdate = 0;
-    if (millis() - lastDisplayUpdate > 5000) { // Every 5 seconds
-        updateDisplay();
-        lastDisplayUpdate = millis();
-    }
-    
-    // MQTT updates - LESS FREQUENT
-    static unsigned long lastMQTTUpdate = 0;
-    if (millis() - lastMQTTUpdate > 15000) { // Every 15 seconds
-        publishSystemStatus();
-        handleMQTTReconnect();
-        lastMQTTUpdate = millis();
-    }
+  // Adaptive behavior checks - MUCH LESS FREQUENT
+  static unsigned long lastAdaptiveCheck = 0;
+  if (millis() - lastAdaptiveCheck > 120000) { // Every 2 MINUTES
+      processAdaptiveBehavior();
+      lastAdaptiveCheck = millis();
+  }
 
-    // Simulation for cat eating - LESS FREQUENT
-    static unsigned long lastEatingSimulation = 0;
-    if (millis() - lastEatingSimulation > 3000) { // Every 3 seconds
-        randomizeEatingBehavior();
-        lastEatingSimulation = millis();
-    }
-    
-    // ADD THE PERIODIC STATUS HERE (replaces spam)
-    printPeriodicStatus();
-    
-    // Add a small delay to prevent overwhelming the system
-    delay(100); // 100ms delay between loop iterations
+  // Update display - LESS FREQUENT
+  static unsigned long lastDisplayUpdate = 0;
+  if (millis() - lastDisplayUpdate > 5000) { // Every 5 seconds
+      updateDisplay();
+      lastDisplayUpdate = millis();
+  }
+  
+  // MQTT updates - LESS FREQUENT
+  static unsigned long lastMQTTUpdate = 0;
+  if (millis() - lastMQTTUpdate > 15000) { // Every 15 seconds
+      publishSystemStatus();
+      handleMQTTReconnect();
+      lastMQTTUpdate = millis();
+  }
+
+  // Simulation for cat eating - LESS FREQUENT
+  static unsigned long lastEatingSimulation = 0;
+  if (millis() - lastEatingSimulation > 3000) { // Every 3 seconds
+      randomizeEatingBehavior();
+      lastEatingSimulation = millis();
+  }
+  
+  // ADD THE PERIODIC STATUS HERE (replaces spam)
+  printPeriodicStatus();
+  
+  // Add a small delay to prevent overwhelming the system
+  delay(100); // 100ms delay between loop iterations
 }
 
 // Handle serial input commands for debugging and control
@@ -152,16 +159,12 @@ void handleSerialInput(String command) {
       executeScheduledFeed();
     }
   }
-  else if (command == "test servo") {
-    calibrateServo();
-  }
   else if (command == "sensors") {
     printSensorStatus();
   }
   else if (command == "history") {
     printFeedingHistory();
   }
-
   else if (command == "calibrate") {
     calibrateWeightSensors();
   }
@@ -189,8 +192,6 @@ void handleSerialInput(String command) {
     Serial.println("feed            - Trigger feeding");
     Serial.println("test servo      - Test servo movement");
     Serial.println("reset           - Reset system");
-    Serial.println("emergency       - Activate emergency stop");
-    Serial.println("clear emergency - Clear emergency mode");
     Serial.println("sensors         - Show sensor readings");
     Serial.println("history         - Show feeding history");
     Serial.println("settings        - Show current settings");

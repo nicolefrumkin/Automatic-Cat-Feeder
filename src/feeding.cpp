@@ -212,37 +212,3 @@ void openFeederGate(int degrees) {
 void closeFeederGate() {
     moveServoToPosition(0);
 }
-
-void calibrateServo() {
-    Serial.println("=== SERVO CALIBRATION ===");
-    
-    Serial.println("Testing servo range...");
-    
-    // Test closed position
-    Serial.println("Moving to closed position (0°)");
-    moveServoToPosition(0);
-    delay(1000);
-    
-    // Test small opening
-    Serial.println("Moving to small opening (30°)");
-    moveServoToPosition(30);
-    delay(1000);
-    
-    // Test medium opening
-    Serial.println("Moving to medium opening (45°)");
-    moveServoToPosition(45);
-    delay(1000);
-    
-    // Test full opening
-    Serial.println("Moving to full opening (75°)");
-    moveServoToPosition(75);
-    delay(1000);
-    
-    // Return to closed
-    Serial.println("Returning to closed position");
-    moveServoToPosition(0);
-    
-    Serial.println("Servo calibration complete!");
-}
-
-

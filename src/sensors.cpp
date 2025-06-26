@@ -233,9 +233,6 @@ void detectOverfeeding() {
     Serial.print("g (threshold: ");
     Serial.print(BOWL_FULL_THRESHOLD);
     Serial.println("g)");
-
-    // Could trigger emergency stop here
-    // emergencyStop();
   }
 }
 

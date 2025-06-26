@@ -10,7 +10,6 @@ void displayHealthAlert();
 void updateDisplay();
 void clearDisplay();
 void showScreen(int screenNumber);
-void displayEmergencyMessage(String message);
 void displayFeedingInProgress(int amount);
 void displayFeedingSuccess(int amount);
 void displayCalibrationMode();

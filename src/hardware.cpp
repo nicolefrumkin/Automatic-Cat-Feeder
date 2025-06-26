@@ -49,7 +49,6 @@ static String serialBuffer = "";
 static bool serialInputComplete = false;
 
 // System state tracking for error handling
-static bool systemInEmergencyMode = false;
 static unsigned long lastValidSensorReading = 0;
 static int consecutiveFailures = 0;
 static const int MAX_CONSECUTIVE_FAILURES = 5;

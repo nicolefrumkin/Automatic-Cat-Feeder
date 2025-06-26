@@ -44,9 +44,6 @@ void handleFeedingError() {
     // Flash error indication
     indicateFeedingError();
     
-    // Display error message
-    displayEmergencyMessage("Feeding Error");
-    
     // Log the error
     Serial.println("Feeding error handled - system safe");
 }
