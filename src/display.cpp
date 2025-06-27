@@ -27,12 +27,79 @@ void displayWelcomeScreen() {
     display.setTextSize(1);
     display.setCursor(25, 30);
     display.print("Mode: ");
-    display.println(settings.Mode ? "MANUAL" : "SCHEDULED");
+    display.println(feeder.Mode ? "MANUAL" : "SCHEDULED");
     
     display.setCursor(25, 40);
     display.print("Portion: ");
-    display.print(settings.Portion);
+    display.print(feeder.portionSize);
     display.println("g");
     
     display.display();
+}
+
+void displayFunctionScreen() {
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0, 0);
+  display.println("Feedes today: " + String(feeder.feedEventsToday));
+
+  // Mode
+  display.setCursor(0, 10);
+  display.print("Mode: ");
+  display.println(feeder.Mode ? "MANUAL" : "SCHEDULED");
+
+  // Portion size
+  display.setCursor(0, 20);
+  display.print("Portion:");
+  display.print(feeder.portionSize);
+  display.println("g");
+
+  // Bowl weight
+  display.setCursor(0, 30);
+  display.print("Bowl:");
+  display.print(feeder.bowlLevel);
+  display.print("g");
+
+  // Tank amount
+  display.print(" Tank:");
+  display.print(feeder.tankLevel);
+  display.println("g");
+
+  // Current time (replace with your RTC/time source)
+  display.setCursor(0, 40);
+  display.print("Time:");
+  display.print(formatTime(millis() - feeder.dayCycle * DAY_CYCLE_MS));  // Example: "12:34"
+  display.print(" Day:");
+  display.println(feeder.dayCycle);  // Example: "12:34"
+
+  // Next feed time (only for SCHEDULED mode)
+  if (feeder.Mode == SCHEDULED) {
+    display.setCursor(0, 50);
+    display.print("Next:");
+    display.println(formatTime(feeder.lastFeedTime + feeder.feedInterval)); // Implement this or format feeder.nextFeedTime
+  }
+
+  display.display();
+}
+
+
+// Helper function to format time
+String formatTime(unsigned long milliseconds) {
+    unsigned long seconds = milliseconds / 1000;
+    unsigned long minutes = seconds / 60;
+    unsigned long hours = minutes / 60;
+    
+    seconds = seconds % 60;
+    minutes = minutes % 60;
+    hours = hours % 24;
+    
+    String timeStr = "";
+    if (minutes < 10) timeStr += "0";
+    timeStr += String(minutes);
+    timeStr += ":";
+    if (seconds < 10) timeStr += "0";
+    timeStr += String(seconds);
+    
+    return timeStr;
 }

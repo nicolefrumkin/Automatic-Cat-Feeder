@@ -19,16 +19,23 @@
 #define HX711_TANK_DT 4
 #define HX711_TANK_SCK 2
 
-#define MIN_PORTION 30
-#define MAX_PORTION 75
-#define DAY_CYCLE_MS 120000 // 2 minutes = 1 day
-#define TANK_LOW_THRESHOLD 0.25
-
 // MQTT settings
 #define WIFI_SSID "Wokwi-GUEST"
 #define WIFI_PASSWORD ""
 #define MQTT_SERVER "broker.hivemq.com"
 #define MQTT_PORT 1883 // default TCP port for MQTT
+
+// Feeding settings
+#define FULL_TANK 2000 // grams = 2KG tank
+#define MIN_PORTION 30
+#define MAX_PORTION 75
+#define DAY_CYCLE_MS 120000 // 2 minutes = 1 day
+#define DEFAULT_FEED_RATE 20000 // 
+#define TANK_LOW_THRESHOLD 0.25
+#define BOWL_FULL_THRESHOLD 250 // grams
+const int BOWL_EMPTY_THRESHOLD = 5;   // 5g = empty bowl
+const int TANK_EMPTY_THRESHOLD = FULL_TANK * TANK_LOW_THRESHOLD; 
+
 
 // Global enums and structs
 enum FeedingMode
@@ -44,19 +51,21 @@ enum SystemState
     ERROR
 };
 
-struct SystemSettings
-{
-    int Portion;            // Default feeding portion
-    FeedingMode Mode;      // Current feeding mode
+struct FeederStatus {
+  FeedingMode Mode;     // Current feeding mode
+  int portionSize;      // grams per portion (e.g., 30g–75g)
+  int bowlLevel;        // grams currently in bowl (from load cell)
+  int tankLevel;        // grams remaining in main reservoir
+  int feedEventsToday;  // count of feedings today
+  bool bowlIsFull;      // flag: bowl is full or not
+  bool tankLow;         // flag: tank low alert (<=25%)
+  int dayCycle;       // current day cycle (0-23)
+  unsigned long lastFeedTime; // timestamp of last feeding (ms since boot or RTC)
+  unsigned long feedInterval;
 };
 
+extern FeederStatus feeder;
 extern Servo feederServo;
-extern SystemSettings settings;
-
-// Constants for sensor thresholds
-const float BOWL_FULL_THRESHOLD = 80.0;   // 80g = full bowl
-const float BOWL_EMPTY_THRESHOLD = 5.0;   // 5g = empty bowl
-const float TANK_EMPTY_THRESHOLD = 100.0; // 100g = nearly empty tank
 
 extern WiFiClient espClient;
 extern PubSubClient mqttClient;
@@ -68,6 +77,7 @@ void setupMQTT();
 // init functions
 void initOLED();
 void initHX711();
+void feederInit();
 
 // read values
 FeedingMode getFeedingMode();
@@ -76,4 +86,11 @@ void handleSerialCommands();
 void displayWelcomeScreen();
 bool detectButtonPress();
 void addFoodToBowl();
+void functionsUpdate();
+void resetFeederForNextDay();
+
+//display functions
+void displayFunctionScreen();   
+void displayWelcomeScreen();
+String formatTime(unsigned long milliseconds);
 

@@ -1,24 +1,35 @@
 to do:
 
 * modes by switch:
-    + support scheaduled
-    + support manual 
+    + support scheaduled - done
+    + support manual - done 
+
 * screen:
-    + welcome screen
-    + present time, next feeding time, kibble status
+    + welcome screen - done 
+    + present time, next feeding time, kibble status - done
+
 * servo:
-    + open servo to feed, close when done
+    + open servo to feed, close when done - fix me not working
+
 * log feedings and present in serial
+
 * analyze daily usage and increase/decrease portion
     + detect abnormal behavior (not eating/ finishing food too soon)
+
 * weight sensor:
     + check bowl before adding a portion
     + monitor main tank, indicate when low (>25%)
-* eating - pet simulation (ramdom whitin range?)
-* MQTT server
- 
-functions to implement:
-    addManualPortion
 
-    link to wokwi:
+* eating - pet simulation (ramdom whitin range?)
+
+* MQTT server
+
+* support serial inputs:
+    +filling tank
+    +changing feeding interval increasing / decreasing
+
+link to wokwi:
     https://wokwi.com/projects/434909408991943681
+
+problems:
+1. servo control isnt working

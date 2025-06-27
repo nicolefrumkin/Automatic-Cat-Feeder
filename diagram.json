@@ -12,7 +12,7 @@
       "left": -179.3,
       "attrs": { "color": "blue" }
     },
-    { "type": "wokwi-servo", "id": "servo1", "top": 74.8, "left": 268.8, "attrs": {} },
+    { "type": "wokwi-servo", "id": "servo1", "top": 113.2, "left": 249.6, "attrs": {} },
     {
       "type": "wokwi-pushbutton",
       "id": "btn1",
@@ -116,7 +116,8 @@
     [ "esp:GND.2", "btn1:1.r", "black", [ "h14.44", "v-48", "h-182.4", "v-19.2" ] ],
     [ "r1:1", "led1:A", "blue", [ "v0", "h19.2" ] ],
     [ "btn1:2.l", "esp:14", "purple", [ "h-9.6", "v38.6", "h96", "v115.2" ] ],
-    [ "sw1:2", "esp:26", "green", [ "v19.2", "h134.5", "v-86.4" ] ]
+    [ "sw1:2", "esp:26", "green", [ "v19.2", "h134.5", "v-86.4" ] ],
+    [ "esp:5V", "servo1:V+", "red", [ "h-4.61", "v28.8", "h153.6", "v-57.6" ] ]
   ],
   "dependencies": {}
 }
