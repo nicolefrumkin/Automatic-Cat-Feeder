@@ -1,0 +1,19 @@
+to do:
+
+* modes by switch:
+    + support scheaduled
+    + support manual 
+* screen:
+    + welcome screen
+    + present time, next feeding time, kibble status
+* servo:
+    + open servo to feed, close when done
+* log feedings and present in serial
+* analyze daily usage and increase/decrease portion
+    + detect abnormal behavior (not eating/ finishing food too soon)
+* weight sensor:
+    + check bowl before adding a portion
+    + monitor main tank, indicate when low (>25%)
+* eating - pet simulation (ramdom whitin range?)
+* MQTT server
+ 
