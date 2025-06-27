@@ -1,44 +1,5 @@
 [wokwi]
 version = 1
-firmware = '.pio\build\esp32doit-devkit-v1\firmware.bin'
-elf = '.pio\build\esp32doit-devkit-v1\firmware.elf'
-
-# Smart Cat Feeder Project Configuration
-[project]
-name = "Smart Cat Feeder"
-description = "Automatic cat feeder with adaptive behavior and monitoring"
-author = "Your Name"
-
-# Serial Monitor Configuration
-[serial]
-baud = 115200
-monitor = true
-
-# Network Configuration for MQTT
-[[net.forward]]
-from = "localhost:8180"
-to = "target:80"
-
-# MQTT Broker forwarding (for testing MQTT functionality)
-[[net.forward]]
-from = "localhost:1883"
-to = "target:1883"
-
-# Additional port forwarding for web interface (if needed)
-[[net.forward]]
-from = "localhost:8080"
-to = "target:8080"
-
-# WiFi Configuration (if using WiFi in simulation)
-[wifi]
-ssid = "Wokwi-GUEST"
-password = ""
-
-# Simulation speed control
-[simulation]
-speed = 1.0  # 1.0 = real-time, 2.0 = 2x speed, 0.5 = half speed
-
-# Debug options
-[debug]
-level = "info"
-serial_output = true
+firmware = ".pio/build/esp32doit-devkit-v1/firmware.bin"
+elf = ".pio/build/esp32doit-devkit-v1/firmware.elf"
+board = "esp32-devkitc-v4"
