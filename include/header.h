@@ -47,8 +47,7 @@ enum SystemState
 struct SystemSettings
 {
     int Portion;            // Default feeding portion
-    // FeedingMode Mode;      // Current feeding mode
-    int Mode; // 0 = SCHEDULED, 1 = MANUAL
+    FeedingMode Mode;      // Current feeding mode
 };
 
 extern Servo feederServo;
@@ -71,8 +70,7 @@ void initOLED();
 void initHX711();
 
 // read values
-// FeedingMode getFeedingMode();
-int getFeedingMode();
+FeedingMode getFeedingMode();
 int getPortionFromPot();
 void handleSerialCommands();
 void displayWelcomeScreen();

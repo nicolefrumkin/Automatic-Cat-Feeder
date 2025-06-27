@@ -11,10 +11,9 @@ void setup()
   Serial.println("\n\n=== SMART CAT FEEDER STARTING ===\n");
   // setupWiFi();
   // setupMQTT();
-  // uncomment later
 
   initOLED();                        // Initialize OLED display
-  pinMode(SWITCH_PIN, INPUT_PULLUP);        // Initialize slide switch
+  pinMode(SWITCH_PIN, INPUT_PULLUP); // Initialize slide switch
   pinMode(BUTTON_PIN, INPUT_PULLUP); // Initialize button
   pinMode(POT_PIN, INPUT);           // Initialize potentiometer
   feederServo.attach(SERVO_PIN);     // Initialize servo
@@ -25,7 +24,7 @@ void setup()
 
   settings.Mode = getFeedingMode();
   settings.Portion = getPortionFromPot();
-  Serial.println("mode: " + String(settings.Mode == 0 ? "MANUAL" : "SCHEDULED"));
+  Serial.println("mode: " + String(settings.Mode == MANUAL ? "MANUAL" : "SCHEDULED"));
   Serial.println("portion: " + String(settings.Portion) + "g\n");
 
   displayWelcomeScreen();
@@ -38,7 +37,6 @@ void loop()
   settings.Mode = getFeedingMode();
   settings.Portion = getPortionFromPot();
 
-  // uncomment later
   // if (!mqttClient.connected())
   // {
   //   setupMQTT(); // Reconnect if needed
@@ -46,10 +44,10 @@ void loop()
   // mqttClient.loop(); // Handle incoming messages
 
   handleSerialCommands();
-  detectButtonPress();
 
-  if (settings.Mode == 0)
+  if (settings.Mode == MANUAL)
   {
+    detectButtonPress();
     // Do something for manual mode
   }
   else
