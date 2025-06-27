@@ -26,7 +26,7 @@
       "type": "wokwi-resistor",
       "id": "r1",
       "top": -14.95,
-      "left": 37,
+      "left": 17.8,
       "rotate": 180,
       "attrs": { "value": "220" }
     },
@@ -34,7 +34,7 @@
       "type": "wokwi-resistor",
       "id": "r3",
       "top": 205.55,
-      "left": -96,
+      "left": -105.6,
       "attrs": { "value": "10000" }
     },
     {
@@ -87,11 +87,11 @@
       "attrs": { "text": "bowl sensor" }
     },
     {
-      "type": "wokwi-pushbutton-6mm",
-      "id": "btn2",
-      "top": -50.2,
-      "left": -134.4,
-      "attrs": { "color": "green", "xray": "1" }
+      "type": "wokwi-pushbutton",
+      "id": "btn1",
+      "top": -51.4,
+      "left": -153.6,
+      "attrs": { "color": "green", "xray": "1", "bounce": "0" }
     }
   ],
   "connections": [
@@ -105,7 +105,7 @@
     [ "servo1:GND", "esp:GND.2", "black", [ "h-38.4", "v28.8" ] ],
     [ "sw1:1", "esp:GND.1", "black", [ "v9.6", "h105.6", "v-38.4" ] ],
     [ "r3:1", "esp:3.3V", "red", [ "h0", "v-28.8" ] ],
-    [ "esp:26", "r3:2", "red", [ "h-38.4", "v153.6" ] ],
+    [ "esp:26", "r3:2", "red", [ "h-43.01", "v96" ] ],
     [ "hx711_1:VCC", "esp:3.3V", "red", [ "h-48", "v134.4" ] ],
     [ "hx711_1:GND", "esp:GND.2", "black", [ "h-57.6", "v124.8" ] ],
     [ "hx711_1:DT", "esp:16", "green", [ "h-76.8", "v181.9" ] ],
@@ -114,18 +114,23 @@
     [ "hx711_2:GND", "esp:GND.2", "black", [ "h-57.6", "v220.8" ] ],
     [ "hx711_2:DT", "esp:4", "green", [ "h-67.2", "v211.2" ] ],
     [ "hx711_2:SCK", "esp:2", "yellow", [ "h-76.8", "v201.6" ] ],
-    [ "led1:A", "r1:1", "blue", [ "v9.6", "h67.2", "v19.2" ] ],
     [ "r1:2", "esp:27", "blue", [ "v0.3", "h-57.8", "v-124.8" ] ],
     [ "led1:C", "esp:GND.2", "black", [ "v19.2", "h67.6", "v48" ] ],
     [ "esp:GND.1", "pot2:GND", "black", [ "h0" ] ],
-    [ "esp:32", "pot2:SIG", "orange", [ "h-33.41", "v-28.8", "h-240.38", "v48.8" ] ],
+    [ "esp:32", "pot2:SIG", "orange", [ "h-52.61", "v-28.8", "h-221.18", "v48.8" ] ],
     [ "servo1:PWM", "esp:13", "orange", [ "h-76.8", "v77", "h-201.6", "v-57.6" ] ],
     [ "sw1:2", "r3:1", "green", [ "v28.8", "h19.3" ] ],
     [ "esp:5V", "hx711_1:VCC", "red", [ "h-4.61", "v9.6", "h220.8", "v-240" ] ],
     [ "esp:5V", "hx711_2:VCC", "red", [ "h-4.61", "v9.6", "h220.8", "v-412.8" ] ],
     [ "esp:5V", "oled1:VCC", "red", [ "h-23.81", "v-384", "h67.05" ] ],
-    [ "esp:GND.2", "btn2:1.r", "black", [ "v0", "h4.84", "v-48", "h-182.4", "v-28.8" ] ],
-    [ "btn2:1.l", "esp:15", "green", [ "h-19.2", "v57.6", "h278.4", "v163.2", "h-9.6" ] ]
+    [ "esp:5", "btn1:2.r", "green", [ "h14.44", "v124.8", "h-144", "v-249.6", "h-57.8" ] ],
+    [ "led1:A", "r1:1", "green", [ "v0", "h19.2" ] ],
+    [
+      "esp:GND.2",
+      "btn1:1.l",
+      "black",
+      [ "v0", "h14.44", "v-48", "h-182.4", "v-38.4", "h-86.4" ]
+    ]
   ],
   "dependencies": {}
 }

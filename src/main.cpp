@@ -38,8 +38,10 @@ void loop()
     delay(200);  // crude debounce so it doesn't spam
   }
   
-  settings.Mode = getFeedingMode();
-  settings.Portion = getPortionFromPot();
+  Serial.print("Current mode: ");
+  Serial.println(digitalRead(BUTTON_PIN));
+  //settings.Mode = getFeedingMode();
+  //settings.Portion = getPortionFromPot();
   delay(100); // Allow time for button state to stabilize
   // if (Serial.available() > 0)
   // {                                     // Check if data is available

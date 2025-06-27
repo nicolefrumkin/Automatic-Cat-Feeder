@@ -19,3 +19,6 @@ to do:
  
 functions to implement:
     addManualPortion
+
+    link to wokwi:
+    https://wokwi.com/projects/434909408991943681

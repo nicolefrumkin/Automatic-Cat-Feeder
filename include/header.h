@@ -8,7 +8,7 @@
 #define OLED_SDA 21
 #define OLED_SCL 22
 #define SERVO_PIN 13
-#define BUTTON_PIN 15
+#define BUTTON_PIN 5
 #define SWITCH_PIN 26
 #define POT_PIN 32
 #define LED_PIN 27
