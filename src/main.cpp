@@ -14,7 +14,7 @@ void setup()
   // uncomment later
 
   initOLED();                        // Initialize OLED display
-  pinMode(SWITCH_PIN, INPUT);        // Initialize slide switch
+  pinMode(SWITCH_PIN, INPUT_PULLUP);        // Initialize slide switch
   pinMode(BUTTON_PIN, INPUT_PULLUP); // Initialize button
   pinMode(POT_PIN, INPUT);           // Initialize potentiometer
   feederServo.attach(SERVO_PIN);     // Initialize servo
@@ -25,7 +25,7 @@ void setup()
 
   settings.Mode = getFeedingMode();
   settings.Portion = getPortionFromPot();
-  Serial.println("mode: " + String(settings.Mode == MANUAL ? "MANUAL" : "SCHEDULED"));
+  Serial.println("mode: " + String(settings.Mode == 0 ? "MANUAL" : "SCHEDULED"));
   Serial.println("portion: " + String(settings.Portion) + "g\n");
 
   displayWelcomeScreen();
@@ -46,11 +46,11 @@ void loop()
   // mqttClient.loop(); // Handle incoming messages
 
   handleSerialCommands();
+  detectButtonPress();
 
-  if (settings.Mode == MANUAL)
+  if (settings.Mode == 0)
   {
     // Do something for manual mode
-    detectButtonPress();
   }
   else
   {

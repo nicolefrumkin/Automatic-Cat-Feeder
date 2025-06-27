@@ -1,5 +1,8 @@
 #include "header.h"
 
-FeedingMode getFeedingMode() {
+// FeedingMode getFeedingMode() {
+//   return (digitalRead(SWITCH_PIN) == HIGH) ? MANUAL : SCHEDULED;
+// }
+int getFeedingMode() {
   return (digitalRead(SWITCH_PIN) == HIGH) ? MANUAL : SCHEDULED;
 }

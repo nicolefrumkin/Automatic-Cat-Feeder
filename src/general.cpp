@@ -15,20 +15,13 @@ void handleSerialCommands() {
 }
 
 void detectButtonPress() {
-  static bool lastState = HIGH;
-  static unsigned long lastPressTime = 0;
+  static bool lastState = LOW;
   bool currentState = digitalRead(BUTTON_PIN);
 
-  if (lastState == HIGH && currentState == LOW) {
-    unsigned long now = millis();
-    if (now - lastPressTime > 200) { // 200ms debounce
-      Serial.println("Button pressed!");
-      lastPressTime = now;
-    }
+  if (currentState == HIGH && lastState == LOW) {
+    Serial.println("Button pressed!");
   }
 
   lastState = currentState;
 }
-
-
 

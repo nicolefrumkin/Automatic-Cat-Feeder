@@ -10,7 +10,7 @@
 #define OLED_SDA 21
 #define OLED_SCL 22
 #define SERVO_PIN 13
-#define BUTTON_PIN 5
+#define BUTTON_PIN 14
 #define SWITCH_PIN 26
 #define POT_PIN 32
 #define LED_PIN 27
@@ -44,28 +44,11 @@ enum SystemState
     ERROR
 };
 
-struct FeedingEvent
-{
-    unsigned long timestamp;
-    String mode;
-    int quantity;
-    float bowlWeightBefore;
-    float bowlWeightAfter;
-    float consumed;               // Amount consumed
-    unsigned long eatingDuration; // How long cat took to eat
-    uint8_t modeCode;             // 0=MANUAL, 1=SCHEDULED
-};
-
 struct SystemSettings
 {
     int Portion;            // Default feeding portion
-    FeedingMode Mode;      // Current feeding mode
-    unsigned long feedingInterval; // Minimum time between feeds
-    float bowlFullThreshold;       // Bowl full threshold in grams
-    float bowlEmptyThreshold;      // Bowl empty threshold in grams
-    float tankLowThreshold;        // Tank low threshold percentage
-    bool adaptiveFeedingEnabled;   // Enable adaptive feeding
-    unsigned long dayStartTime;    // Time when day cycle starts
+    // FeedingMode Mode;      // Current feeding mode
+    int Mode; // 0 = SCHEDULED, 1 = MANUAL
 };
 
 extern Servo feederServo;
@@ -85,15 +68,13 @@ void setupMQTT();
 
 // init functions
 void initOLED();
-void initSlideSwitch();
-void initButton();
-void initServo();
 void initHX711();
-void initLED();
 
 // read values
-FeedingMode getFeedingMode();
+// FeedingMode getFeedingMode();
+int getFeedingMode();
 int getPortionFromPot();
 void handleSerialCommands();
 void displayWelcomeScreen();
 void detectButtonPress();
+
