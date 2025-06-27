@@ -38,14 +38,12 @@ void loop()
   settings.Mode = getFeedingMode();
   settings.Portion = getPortionFromPot();
 
-  // uncomment later
-  // if (!mqttClient.connected())
-  // {
-  //   setupMQTT(); // Reconnect if needed
-  // }
-  // mqttClient.loop(); // Handle incoming messages
-
-  handleSerialCommands();
+  if (Serial.available() > 0)
+  {                                     // Check if data is available
+    String input = Serial.readString(); // Read full string until timeout or newline
+    input.trim();                       // Remove any leading/trailing whitespace
+    handleSerialInput(input);           // Process the command
+  }
 
   if (settings.Mode == MANUAL)
   {
