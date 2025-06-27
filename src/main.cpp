@@ -9,8 +9,8 @@ void setup()
 {
   Serial.begin(115200);
   Serial.println("\n\n=== SMART CAT FEEDER STARTING ===\n");
-  // setupWiFi();
-  // setupMQTT();
+  setupWiFi();
+  setupMQTT();
 
   initOLED();                        // Initialize OLED display
   pinMode(SWITCH_PIN, INPUT_PULLUP); // Initialize slide switch
@@ -37,11 +37,11 @@ void loop()
   settings.Mode = getFeedingMode();
   settings.Portion = getPortionFromPot();
 
-  // if (!mqttClient.connected())
-  // {
-  //   setupMQTT(); // Reconnect if needed
-  // }
-  // mqttClient.loop(); // Handle incoming messages
+  if (!mqttClient.connected())
+  {
+    setupMQTT(); // Reconnect if needed
+  }
+  mqttClient.loop(); // Handle incoming messages
 
   handleSerialCommands();
 
