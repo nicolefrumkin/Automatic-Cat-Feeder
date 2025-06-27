@@ -1,6 +1,5 @@
 #include "header.h"
 
 FeedingMode getFeedingMode() {
-  int switchState = digitalRead(SWITCH_PIN);
-  return (switchState == HIGH) ? MANUAL : SCHEDULED;
+  return (digitalRead(SWITCH_PIN) == HIGH) ? MANUAL : SCHEDULED;
 }

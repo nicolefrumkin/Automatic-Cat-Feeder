@@ -10,7 +10,7 @@ void setup()
   Serial.println("...");
 
   pinMode(SWITCH_PIN, INPUT);    // Initialize slide switch
-  pinMode(BUTTON_PIN, INPUT);    // Initialize button
+  pinMode(BUTTON_PIN, INPUT_PULLUP); // Initialize button with pull-up resistor
   pinMode(POT_PIN, INPUT);       // Initialize potentiometer
   feederServo.attach(SERVO_PIN); // Initialize servo
   initHX711();
@@ -32,24 +32,35 @@ void setup()
 
 void loop()
 {
+
+  if (digitalRead(BUTTON_PIN) == LOW) {  // LOW when pressed
+    Serial.println("Button pressed!");
+    delay(200);  // crude debounce so it doesn't spam
+  }
+  
   settings.Mode = getFeedingMode();
   settings.Portion = getPortionFromPot();
+  delay(100); // Allow time for button state to stabilize
+  // if (Serial.available() > 0)
+  // {                                     // Check if data is available
+  //   String input = Serial.readString(); // Read full string until timeout or newline
+  //   input.trim();                       // Remove any leading/trailing whitespace
+  //   handleSerialInput(input);           // Process the command
+  // }
 
-  if (Serial.available() > 0)
-  {                                     // Check if data is available
-    String input = Serial.readString(); // Read full string until timeout or newline
-    input.trim();                       // Remove any leading/trailing whitespace
-    handleSerialInput(input);           // Process the command
-  }
+  // if(digitalRead(SWITCH_PIN) == HIGH)
+  // {
+    
+  // }
 
-  if (settings.Mode == MANUAL)
-  {
-    // Do something for manual mode
-  }
-  else
-  {
-    // Do something for scheduled mode
-  }
+  // if (settings.Mode == MANUAL)
+  // {
+  //   // Do something for manual mode
+  // }
+  // else
+  // {
+  //   // Do something for scheduled mode
+  // }
 
-  delay(1000); // Optional debounce/sample rate
+  //delay(1000); // Optional debounce/sample rate
 }

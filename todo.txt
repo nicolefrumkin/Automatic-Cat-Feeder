@@ -17,3 +17,5 @@ to do:
 * eating - pet simulation (ramdom whitin range?)
 * MQTT server
  
+functions to implement:
+    addManualPortion

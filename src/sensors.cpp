@@ -11,7 +11,6 @@ void initHX711() {
 
 int getPortionFromPot() {
   int potValue = analogRead(POT_PIN);
-  int portion = map(potValue, 0, 4095, MIN_PORTION, MAX_PORTION);
-  return portion;
+  return map(potValue, 0, 4095, MIN_PORTION, MAX_PORTION);
 }
 
