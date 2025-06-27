@@ -19,17 +19,17 @@ void initOLED() {
 
 void displayWelcomeScreen() {
     display.clearDisplay();
-    display.setTextSize(1);
+    display.setTextSize(2);
     display.setTextColor(SSD1306_WHITE);
-    display.setCursor(0, 0);
-    display.println("Smart Cat Feeder");
+    display.setCursor(20, 0);
+    display.println("Welcome");
     
     display.setTextSize(1);
-    display.setCursor(0, 10);
+    display.setCursor(25, 30);
     display.print("Mode: ");
     display.println(settings.Mode ? "MANUAL" : "SCHEDULED");
     
-    display.setCursor(0, 20);
+    display.setCursor(25, 40);
     display.print("Portion: ");
     display.print(settings.Portion);
     display.println("g");

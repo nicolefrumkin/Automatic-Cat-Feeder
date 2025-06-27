@@ -3,6 +3,8 @@
 #include <ESP32Servo.h>
 #include <Arduino.h>
 #include <Wire.h>
+#include <WiFi.h>
+#include <PubSubClient.h>
 
 // Project configuration and constants
 #define OLED_SDA 21
@@ -23,8 +25,10 @@
 #define TANK_LOW_THRESHOLD 0.25
 
 // MQTT settings
-#define MQTT_SERVER "your_mqtt_server"
-#define MQTT_PORT 1883
+#define WIFI_SSID "Wokwi-GUEST"
+#define WIFI_PASSWORD ""
+#define MQTT_SERVER "broker.hivemq.com"
+#define MQTT_PORT 1883 // default TCP port for MQTT
 
 // Global enums and structs
 enum FeedingMode
@@ -72,6 +76,13 @@ const float BOWL_FULL_THRESHOLD = 80.0;   // 80g = full bowl
 const float BOWL_EMPTY_THRESHOLD = 5.0;   // 5g = empty bowl
 const float TANK_EMPTY_THRESHOLD = 100.0; // 100g = nearly empty tank
 
+extern WiFiClient espClient;
+extern PubSubClient mqttClient;
+
+// MQTT functions
+void setupWiFi();
+void setupMQTT();
+
 // init functions
 void initOLED();
 void initSlideSwitch();
@@ -83,6 +94,6 @@ void initLED();
 // read values
 FeedingMode getFeedingMode();
 int getPortionFromPot();
-void handleSerialInput(String command);
+void handleSerialCommands();
 void displayWelcomeScreen();
-
+void detectButtonPress();
