@@ -37,17 +37,13 @@ void loop()
   settings.Mode = getFeedingMode();
   settings.Portion = getPortionFromPot();
 
-  if (!mqttClient.connected())
-  {
-    setupMQTT(); // Reconnect if needed
-  }
-  mqttClient.loop(); // Handle incoming messages
-
   handleSerialCommands();
 
   if (settings.Mode == MANUAL)
   {
-    detectButtonPress();
+    if(detectButtonPress()) {
+      addFoodToBowl();
+    }
     // Do something for manual mode
   }
   else

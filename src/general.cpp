@@ -14,14 +14,16 @@ void handleSerialCommands() {
   }
 }
 
-void detectButtonPress() {
-  static bool lastState = LOW;
+bool detectButtonPress() {
+  static bool lastState = HIGH;
   bool currentState = digitalRead(BUTTON_PIN);
+  bool is_pressed = false;
 
   if (currentState == HIGH && lastState == LOW) {
-    Serial.println("Button pressed!");
+    is_pressed = true;
   }
 
   lastState = currentState;
+  return is_pressed;
 }
 

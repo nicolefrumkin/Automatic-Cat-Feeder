@@ -74,5 +74,6 @@ FeedingMode getFeedingMode();
 int getPortionFromPot();
 void handleSerialCommands();
 void displayWelcomeScreen();
-void detectButtonPress();
+bool detectButtonPress();
+void addFoodToBowl();
 
