@@ -21,18 +21,8 @@ void displayWelcomeScreen() {
     display.clearDisplay();
     display.setTextSize(2);
     display.setTextColor(SSD1306_WHITE);
-    display.setCursor(20, 0);
+    display.setCursor(20, 20);
     display.println("Welcome");
-    
-    display.setTextSize(1);
-    display.setCursor(25, 30);
-    display.print("Mode: ");
-    display.println(feeder.Mode ? "MANUAL" : "SCHEDULED");
-    
-    display.setCursor(25, 40);
-    display.print("Portion: ");
-    display.print(feeder.portionSize);
-    display.println("g");
     
     display.display();
 }

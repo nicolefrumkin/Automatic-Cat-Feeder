@@ -19,9 +19,9 @@ void addFoodToBowl() {
   // dispensing food
   int servoTime = map(feeder.portionSize, MIN_PORTION, MAX_PORTION, 200, 500); // Map portion size to servo time
   // fixme - servo isnt working properly
-  //feederServo.write(30); // Move servo to dispense food - angle relevant to portion size
+  feederServo.write(30); // Move servo to dispense food - angle relevant to portion size
   delay(servoTime); // Wait for servo to move
-  //feederServo.write(0); // Reset servo position
+  feederServo.write(90); // Reset servo position
 
   feeder.bowlIsFull = false;
   feeder.feedEventsToday++;

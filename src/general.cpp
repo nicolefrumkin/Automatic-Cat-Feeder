@@ -11,6 +11,13 @@ void handleSerialCommands() {
     if (command == "status") {
       // printSystemStatus();
     }
+
+    if (command == "choose feeding time") {
+      Serial.println("Please enter the feeding time in HH:MM format:");
+      String timeInput = Serial.readStringUntil('\n');
+      timeInput.trim();
+      // parseTime(timeInput); // Implement this function to handle time input
+    }
   }
 }
 
