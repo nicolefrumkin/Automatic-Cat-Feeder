@@ -8,15 +8,41 @@ void handleSerialCommands() {
     Serial.print("Processing command: ");
     Serial.println(command);
 
-    if (command == "status") {
-      // printSystemStatus();
+    if (command == "help") {
+      Serial.println("Available commands:");
+      Serial.println("1. help - Show this help message");
+      Serial.println("2. fill tank - Top the tank with 2KG of kibble");
+      Serial.println("3. increase - Increaing Feeding rate by half an hour ");
+      Serial.println("4. decrease - Decarsing feeding rate, by half an hour ");
+      Serial.println("5. defalut - Setting defalut feeding rate to 6 times a day");
     }
 
-    if (command == "choose feeding time") {
-      Serial.println("Please enter the feeding time in HH:MM format:");
-      String timeInput = Serial.readStringUntil('\n');
-      timeInput.trim();
-      // parseTime(timeInput); // Implement this function to handle time input
+    if (command == "fill tank") {
+      feeder.tankLevel = FULL_TANK; // Reset tank level to 2KG
+    }
+    if (command == "increase") { // reducing interval - increases feeding rate
+      if(feeder.feedInterval - FEED_RATE_CHANGE < MAX_FEED_RATE) {
+        Serial.println("cannot increase feeding rate, already at maximum");
+        return;
+      }
+      else {
+        feeder.feedInterval -= FEED_RATE_CHANGE;
+        Serial.println("Increasing feeding rate by 30 minutes");
+      }
+    }
+    if (command == "decrease") {
+      if(feeder.feedInterval + FEED_RATE_CHANGE > MIN_FEED_RATE) {
+        Serial.println("cannot decrease feeding rate, already at minimum");
+        return;
+      }
+      else {
+        feeder.feedInterval += FEED_RATE_CHANGE;
+        Serial.println("Decreasing feeding rate by 30 minutes");
+      }
+    }
+    if (command == "default") {
+      feeder.feedInterval = DEFAULT_FEED_RATE; // Reset to default feeding rate
+      Serial.println("Feeding rate reset to default (6 times per day)");
     }
   }
 }

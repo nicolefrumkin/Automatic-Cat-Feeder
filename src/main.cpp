@@ -50,7 +50,6 @@ void setup()
 
 void loop()
 {
-
   if (feeder.Mode == 1) // maunal mode
   {
     if (detectButtonPress())
@@ -61,12 +60,10 @@ void loop()
   else // scheduled mode
   {
     unsigned long currentMillis = millis();
-    if (currentMillis - feeder.lastFeedTime >= feeder.feedInterval)
+    if (currentMillis - feeder.lastFeedTime >= feeder.feedInterval) // check if time to feed
     {
-      // Time to feed
       feeder.lastFeedTime = currentMillis; // Update last feed time
       addFoodToBowl();
-      // Serial.println("Feeding event occurred. Total today: " + String(feeder.feedEventsToday));
     }
   }
 
@@ -76,7 +73,6 @@ void loop()
   if (currentMillis - lastDisplayUpdate >= interval1)
   {
     lastDisplayUpdate = currentMillis;
-    // update function per interval1
     functionsUpdate();
   }
   // next day cycle update

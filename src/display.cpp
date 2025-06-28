@@ -45,18 +45,18 @@ void displayFunctionScreen() {
   display.println("Feedes today: " + String(feeder.feedEventsToday));
 
   // Mode
-  display.setCursor(0, 10);
+  display.setCursor(0, 9);
   display.print("Mode: ");
   display.println(feeder.Mode ? "MANUAL" : "SCHEDULED");
 
   // Portion size
-  display.setCursor(0, 20);
+  display.setCursor(0, 18);
   display.print("Portion:");
   display.print(feeder.portionSize);
   display.println("g");
 
   // Bowl weight
-  display.setCursor(0, 30);
+  display.setCursor(0, 27);
   display.print("Bowl:");
   display.print(feeder.bowlLevel);
   display.print("g");
@@ -67,7 +67,7 @@ void displayFunctionScreen() {
   display.println("g");
 
   // Current time (replace with your RTC/time source)
-  display.setCursor(0, 40);
+  display.setCursor(0, 36);
   display.print("Time:");
   display.print(formatTime(millis() - feeder.dayCycle * DAY_CYCLE_MS));  // Example: "12:34"
   display.print(" Day:");
@@ -75,9 +75,12 @@ void displayFunctionScreen() {
 
   // Next feed time (only for SCHEDULED mode)
   if (feeder.Mode == SCHEDULED) {
-    display.setCursor(0, 50);
+    display.setCursor(0, 45);
     display.print("Next:");
     display.println(formatTime(feeder.lastFeedTime + feeder.feedInterval)); // Implement this or format feeder.nextFeedTime
+    display.setCursor(0, 54);
+    display.print("Interval:");
+    display.println(formatTime(feeder.feedInterval)); // Implement this or format feeder.nextFeedTime
   }
 
   display.display();

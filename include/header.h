@@ -31,6 +31,9 @@
 #define MAX_PORTION 75
 #define DAY_CYCLE_MS 120000 // 2 minutes = 1 day
 #define DEFAULT_FEED_RATE 20000 // 
+#define FEED_RATE_CHANGE 2500 // equivalent to 30 minutes
+#define MIN_FEED_RATE 60000 // equivalent to every 12 hours
+#define MAX_FEED_RATE 10000 // equivalent to every 2 hours 
 #define TANK_LOW_THRESHOLD 0.25
 #define BOWL_FULL_THRESHOLD 250 // grams
 const int BOWL_EMPTY_THRESHOLD = 5;   // 5g = empty bowl
