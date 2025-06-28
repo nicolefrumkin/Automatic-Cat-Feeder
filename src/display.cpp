@@ -111,7 +111,7 @@ void displayAlert() {
   display.setCursor(0, 0);
   display.println("⚠️ ALERT:");
   display.println("Low intake today.");
-  Serial.println("⚠️ ALERT:");
-  Serial.println("Low intake today.");
+  Serial.println("⚠️  ALERT:");
+  Serial.println("Low intake today.\n");
   display.display();
 }

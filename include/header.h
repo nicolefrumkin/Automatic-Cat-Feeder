@@ -36,7 +36,6 @@
 const int BOWL_EMPTY_THRESHOLD = 5;   // 5g = empty bowl
 const int TANK_EMPTY_THRESHOLD = FULL_TANK * TANK_LOW_THRESHOLD; 
 
-
 // Global enums and structs
 enum FeedingMode
 {
@@ -62,6 +61,7 @@ struct FeederStatus {
   int dayCycle;       // current day cycle (0-23)
   unsigned long lastFeedTime; // timestamp of last feeding (ms since boot or RTC)
   unsigned long feedInterval;
+  unsigned long bowlEmptyTime; 
 };
 
 extern FeederStatus feeder;
