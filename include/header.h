@@ -85,12 +85,18 @@ int getPortionFromPot();
 void handleSerialCommands();
 void displayWelcomeScreen();
 bool detectButtonPress();
-void addFoodToBowl();
 void functionsUpdate();
-void resetFeederForNextDay();
 
 //display functions
 void displayFunctionScreen();   
 void displayWelcomeScreen();
 String formatTime(unsigned long milliseconds);
+
+// feeding functions
+void addFoodToBowl();
+void simulateEating();
+void resetFeederForNextDay();
+void logFeedingEvent();
+void checkEatingTrendAndAlert();
+void displayAlert();
 

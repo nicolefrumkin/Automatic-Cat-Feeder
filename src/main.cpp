@@ -82,6 +82,8 @@ void loop()
   // next day cycle update
   if ((currentMillis - feeder.dayCycle * DAY_CYCLE_MS) >= DAY_CYCLE_MS)
   {
+    checkEatingTrendAndAlert();
     resetFeederForNextDay();
   }
+  simulateEating();
 }

@@ -28,6 +28,7 @@ void addFoodToBowl() {
   feeder.bowlLevel += feeder.portionSize; // Update bowl level
   feeder.tankLevel -= feeder.portionSize; // Update tank level
   Serial.println("Food added to bowl!");
+  logFeedingEvent();
 }
 
 void resetFeederForNextDay() {
@@ -35,5 +36,45 @@ void resetFeederForNextDay() {
   feeder.dayCycle += 1;            // Increment day cycle
   feeder.lastFeedTime = millis();   // Reset or update to "start of day"
   // add all the health checks here and check abnormal behavior
-  Serial.println("Feeder reset for new day.");
+  Serial.println("Feeder reset for new day.\n");
 }
+
+void simulateEating() {
+  const int eatingRate = 10; // grams per eating event
+  const unsigned long eatingInterval = 15000; // 15 seconds between bites
+  String sounds[] = { "nom nom", "munch munch", "slurp!", "nyam nyam", "crunch crunch" };
+
+  static unsigned long lastEatingTime = 0;
+  unsigned long currentMillis = millis();
+
+  // Only simulate eating if the bowl has kibble
+  if (feeder.bowlLevel > 0 && currentMillis - lastEatingTime >= eatingInterval) {
+    feeder.bowlLevel -= eatingRate;
+
+    if (feeder.bowlLevel < 0) {
+      feeder.bowlLevel = 0; // Don’t go negative
+    }
+
+    lastEatingTime = currentMillis;
+    Serial.println("🐱 " + sounds[random(0, 5)]);
+    Serial.println("Bowl now has " + String(feeder.bowlLevel) + "g\n");
+  }
+}
+
+void logFeedingEvent() {
+  String timestamp = formatTime(millis()); // or your RTC time
+  String modeStr = feeder.Mode == MANUAL ? "MANUAL" : "SCHEDULED";
+  int quantity = feeder.portionSize;
+
+  Serial.println("Feeding: " + timestamp + ", " + modeStr + ", " + String(quantity) + "g\n");
+}
+
+void checkEatingTrendAndAlert() {
+  int minDailyIntake = feeder.portionSize / 2;
+
+  if (feeder.feedEventsToday == 0 || feeder.bowlLevel < minDailyIntake) {
+    displayAlert();
+  }
+}
+
+
