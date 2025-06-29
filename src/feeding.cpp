@@ -92,7 +92,11 @@ void logFeedingEvent()
   String modeStr = feeder.Mode == MANUAL ? "MANUAL" : "SCHEDULED";
   int quantity = feeder.portionSize;
 
-  Serial.println("Feeding: " + timestamp + ", " + modeStr + ", " + String(quantity) + "g\n");
+  String message = "Feeding: " + timestamp + ", " + modeStr + ", " + String(quantity) + "g";
+  Serial.println(message);
+
+  // Publish to MQTT
+  mqttClient.publish("catfeeder/feed", message.c_str());
 }
 
 void checkEatingTrendAndAlert()

@@ -45,11 +45,15 @@ void setup()
   feederInit();
 
   Serial.println("=== INITIALIZATION COMPLETE ===\n");
+
+  printMQTTInstructions();
+  
   delay(2000); // Wait for 2 sec before starting the loop
 }
 
 void loop()
 {
+    mqttClient.loop(); 
   if (feeder.Mode == 1) // maunal mode
   {
     if (detectButtonPress())

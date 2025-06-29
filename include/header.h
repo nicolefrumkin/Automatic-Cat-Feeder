@@ -24,6 +24,9 @@
 #define WIFI_PASSWORD ""
 #define MQTT_SERVER "broker.hivemq.com"
 #define MQTT_PORT 1883 // default TCP port for MQTT
+#define MQTT_TOPIC_FEED_EVENT   "catfeeder/feed"
+#define MQTT_TOPIC_ALERT        "catfeeder/alert"
+#define MQTT_TOPIC_STATUS       "catfeeder/status"
 
 // Feeding settings
 #define FULL_TANK 2000 // grams = 2KG tank
@@ -102,4 +105,5 @@ void resetFeederForNextDay();
 void logFeedingEvent();
 void checkEatingTrendAndAlert();
 void displayAlert();
+void printMQTTInstructions();
 

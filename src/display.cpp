@@ -7,37 +7,42 @@
 #define SCREEN_HEIGHT 64
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
-void initOLED() {
+void initOLED()
+{
   Wire.begin(OLED_SDA, OLED_SCL);
-  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
+  {
     Serial.println(F("SSD1306 allocation failed"));
-    while (true);
+    while (true)
+      ;
   }
   display.clearDisplay();
   display.display();
 }
 
-void displayWelcomeScreen() {
-    display.clearDisplay();
-    display.setTextSize(2);
-    display.setTextColor(SSD1306_WHITE);
-    display.setCursor(20, 0);
-    display.println("Welcome");
-    
-    display.setTextSize(1);
-    display.setCursor(25, 30);
-    display.print("Mode: ");
-    display.println(feeder.Mode ? "MANUAL" : "SCHEDULED");
-    
-    display.setCursor(25, 40);
-    display.print("Portion: ");
-    display.print(feeder.portionSize);
-    display.println("g");
-    
-    display.display();
+void displayWelcomeScreen()
+{
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(20, 0);
+  display.println("Welcome");
+
+  display.setTextSize(1);
+  display.setCursor(25, 30);
+  display.print("Mode: ");
+  display.println(feeder.Mode ? "MANUAL" : "SCHEDULED");
+
+  display.setCursor(25, 40);
+  display.print("Portion: ");
+  display.print(feeder.portionSize);
+  display.println("g");
+
+  display.display();
 }
 
-void displayFunctionScreen() {
+void displayFunctionScreen()
+{
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
@@ -69,12 +74,13 @@ void displayFunctionScreen() {
   // Current time (replace with your RTC/time source)
   display.setCursor(0, 36);
   display.print("Time:");
-  display.print(formatTime(millis() - feeder.dayCycle * DAY_CYCLE_MS));  // Example: "12:34"
+  display.print(formatTime(millis() - feeder.dayCycle * DAY_CYCLE_MS)); // Example: "12:34"
   display.print(" Day:");
-  display.println(feeder.dayCycle);  // Example: "12:34"
+  display.println(feeder.dayCycle); // Example: "12:34"
 
   // Next feed time (only for SCHEDULED mode)
-  if (feeder.Mode == SCHEDULED) {
+  if (feeder.Mode == SCHEDULED)
+  {
     display.setCursor(0, 45);
     display.print("Next:");
     display.println(formatTime(feeder.lastFeedTime + feeder.feedInterval)); // Implement this or format feeder.nextFeedTime
@@ -86,28 +92,31 @@ void displayFunctionScreen() {
   display.display();
 }
 
-
 // Helper function to format time
-String formatTime(unsigned long milliseconds) {
-    unsigned long seconds = milliseconds / 1000;
-    unsigned long minutes = seconds / 60;
-    unsigned long hours = minutes / 60;
-    
-    seconds = seconds % 60;
-    minutes = minutes % 60;
-    hours = hours % 24;
-    
-    String timeStr = "";
-    if (minutes < 10) timeStr += "0";
-    timeStr += String(minutes);
-    timeStr += ":";
-    if (seconds < 10) timeStr += "0";
-    timeStr += String(seconds);
-    
-    return timeStr;
+String formatTime(unsigned long milliseconds)
+{
+  unsigned long seconds = milliseconds / 1000;
+  unsigned long minutes = seconds / 60;
+  unsigned long hours = minutes / 60;
+
+  seconds = seconds % 60;
+  minutes = minutes % 60;
+  hours = hours % 24;
+
+  String timeStr = "";
+  if (minutes < 10)
+    timeStr += "0";
+  timeStr += String(minutes);
+  timeStr += ":";
+  if (seconds < 10)
+    timeStr += "0";
+  timeStr += String(seconds);
+
+  return timeStr;
 }
 
-void displayAlert() {
+void displayAlert()
+{
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
@@ -117,4 +126,5 @@ void displayAlert() {
   Serial.println("⚠️  ALERT:");
   Serial.println("Low intake today.\n");
   display.display();
+  mqttClient.publish(MQTT_TOPIC_ALERT, "Alert: Cat may be sick - not eating properly");
 }
