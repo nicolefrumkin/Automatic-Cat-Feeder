@@ -54,39 +54,31 @@ void setup()
 void loop()
 {
   mqttClient.loop();
-  if (feeder.Mode == 1) // maunal mode
-  {
-    if (detectButtonPress())
-    {
+  if (feeder.Mode == 1) {// maunal mode
+    if (detectButtonPress()) {
       addFoodToBowl();
     }
   }
-  else // scheduled mode
-  {
+  else { // scheduled mode
     unsigned long currentMillis = millis();
-    if (currentMillis - feeder.lastFeedTime >= feeder.feedInterval) // check if time to feed
-    {
+    if (currentMillis - feeder.lastFeedTime >= feeder.feedInterval) { // check if time to feed
       feeder.lastFeedTime = currentMillis; // Update last feed time
       addFoodToBowl();
     }
   }
-
   // timing logic for display and reading updates
   unsigned long currentMillis = millis();
 
-  if (currentMillis - lastDisplayUpdate >= interval1)
-  {
+  if (currentMillis - lastDisplayUpdate >= interval1) {
     lastDisplayUpdate = currentMillis;
     // updateWeightLevels(); // uncomment if using real hardware
     checkTankLevelAndAlert();
     functionsUpdate();
   }
   // next day cycle update
-  if (millis() - lastDayCycleReset >= DAY_CYCLE_MS)
-  {
+  if (millis() - lastDayCycleReset >= DAY_CYCLE_MS) {
     resetFeederForNextDay();
     lastDayCycleReset = millis(); // Update last reset time
   }
-
   simulateEating();
 }

@@ -1,9 +1,0 @@
-to do:
-
-* analyze daily usage and increase/decrease portion
-    + detect abnormal behavior (not eating/ finishing food too soon)
-
-* MQTT server
-
-link to wokwi:
-    https://wokwi.com/projects/434909408991943681

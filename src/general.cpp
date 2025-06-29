@@ -18,7 +18,7 @@ void handleSerialCommands()
       Serial.println("3. increase - Increaing Feeding rate by half an hour ");
       Serial.println("4. decrease - Decarsing feeding rate, by half an hour ");
       Serial.println("5. default - Setting default feeding rate to 6 times a day");
-      Serial.println("6. mqtt - MQTT setting instructions");
+      Serial.println("6. MQTT - MQTT setting instructions");
     }
 
     if (command == "fill tank")

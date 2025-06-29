@@ -71,7 +71,7 @@ void displayFunctionScreen()
   display.print(feeder.tankLevel);
   display.println("g");
 
-  // Current time (replace with your RTC/time source)
+  // Current time and day
   display.setCursor(0, 36);
   display.print("Time:");
   display.print(formatTime(millis() - feeder.dayCycle * DAY_CYCLE_MS)); // Example: "12:34"
