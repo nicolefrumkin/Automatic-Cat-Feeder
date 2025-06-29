@@ -27,7 +27,7 @@ void setup()
   pinMode(SWITCH_PIN, INPUT_PULLUP); // Initialize slide switch
   pinMode(BUTTON_PIN, INPUT_PULLUP); // Initialize button
   pinMode(POT_PIN, INPUT);           // Initialize potentiometer
-  pinMode(LED_PIN, OUTPUT);          // initialize OLED display
+  pinMode(LED_PIN, OUTPUT);          // initialize LED 
   digitalWrite(LED_PIN, LOW);        // Turn off initially
   ledcSetup(PWM_CHANNEL, freq, resolution);
   ledcAttachPin(SERVO_PIN, PWM_CHANNEL);     // Manually attach PWM for servo
@@ -47,8 +47,9 @@ void setup()
 
   Serial.println("=== INITIALIZATION COMPLETE ===\n");
   delay(1000);
-  digitalWrite(LED_PIN, LOW);
+  digitalWrite(LED_PIN, HIGH);
   delay(1000);
+  digitalWrite(LED_PIN, LOW);
 }
 
 void loop()

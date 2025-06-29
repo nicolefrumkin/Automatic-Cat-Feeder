@@ -59,15 +59,15 @@ enum SystemState
 struct FeederStatus {
   FeedingMode Mode;     // Current feeding mode
   int portionSize;      // grams per portion (e.g., 30g–75g)
-  int bowlLevel;        // grams currently in bowl (from load cell)
+  int bowlLevel;        // grams currently in bowl 
   int tankLevel;        // grams remaining in main reservoir
   int feedEventsToday;  // count of feedings today
   bool bowlIsFull;      // flag: bowl is full or not
   bool tankLow;         // flag: tank low alert (<=25%)
   int dayCycle;       // current day cycle (0-23)
   unsigned long lastFeedTime; // timestamp of last feeding (ms since boot or RTC)
-  unsigned long feedInterval;
-  unsigned long bowlEmptyTime; 
+  unsigned long feedInterval; // feeding interval in milliseconds for scheduled mode
+  unsigned long bowlEmptyTime; // takes the last time the bowl was empty
 };
 
 extern FeederStatus feeder;

@@ -2,16 +2,14 @@
 
 void handleSerialCommands()
 {
-  if (Serial.available() > 0)
-  {
+  if (Serial.available() > 0) {
     String command = Serial.readString();
     command.trim();
 
     Serial.print("Processing command: ");
     Serial.println(command);
 
-    if (command == "help")
-    {
+    if (command == "help") {
       Serial.println("Available commands:");
       Serial.println("1. help - Show this help message");
       Serial.println("2. fill tank - Top the tank with 2KG of kibble");
@@ -19,42 +17,39 @@ void handleSerialCommands()
       Serial.println("4. decrease - Decarsing feeding rate, by half an hour ");
       Serial.println("5. default - Setting default feeding rate to 6 times a day");
       Serial.println("6. MQTT - MQTT setting instructions");
+      return;
     }
 
-    if (command == "fill tank")
-    {
+    if (command == "fill tank"){
       feeder.tankLevel = FULL_TANK; // Reset tank level to 2KG
+      return;
     }
-    if (command == "increase")
-    { // reducing interval - increases feeding rate
-      if (feeder.feedInterval - FEED_RATE_CHANGE < MAX_FEED_RATE)
-      {
+    if (command == "increase") { // reducing interval - increases feeding rate
+      if (feeder.feedInterval - FEED_RATE_CHANGE < MAX_FEED_RATE) {
         Serial.println("Cannot increase feeding rate, already at maximum");
         return;
       }
-      else
-      {
+      else {
         feeder.feedInterval -= FEED_RATE_CHANGE;
         Serial.println("Increasing feeding rate by 30 minutes");
       }
+      return;
     }
-    if (command == "decrease")
-    {
-      if (feeder.feedInterval + FEED_RATE_CHANGE > MIN_FEED_RATE)
-      {
+    if (command == "decrease") {
+      if (feeder.feedInterval + FEED_RATE_CHANGE > MIN_FEED_RATE){
         Serial.println("Cannot decrease feeding rate, already at minimum");
         return;
       }
-      else
-      {
+      else {
         feeder.feedInterval += FEED_RATE_CHANGE;
         Serial.println("Decreasing feeding rate by 30 minutes");
       }
+      return;
     }
-    if (command == "default")
-    {
+    if (command == "default") {
       feeder.feedInterval = DEFAULT_FEED_RATE; // Reset to default feeding rate
       Serial.println("Feeding rate reset to default (6 times per day)");
+      return;
     }
     if (command == "MQTT")
     {
@@ -73,7 +68,11 @@ void handleSerialCommands()
       Serial.println();
       Serial.println("You will now see live feeding and alert messages from your feeder.");
       Serial.println("=====================================\n");
+      return;
     }
+    // If command is not recognized
+    Serial.println("Unknown command. Type 'help' for a list of commands.");
+    return;
   }
 }
 

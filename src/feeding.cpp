@@ -69,7 +69,7 @@ void resetFeederForNextDay()
 void simulateEating()
 {
   const int eatingRate = 10;                  // grams per eating event
-  const unsigned long eatingInterval = 15000; // 15 seconds between bites
+  const unsigned long eatingInterval = random(10000, 25001); // random time from 10 to 25 seconds between bites
   String sounds[] = {"nom nom", "munch munch", "slurp!", "nyam nyam", "crunch crunch"};
 
   static unsigned long lastEatingTime = 0;
