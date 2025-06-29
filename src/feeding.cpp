@@ -20,6 +20,14 @@ void addFoodToBowl()
     Serial.println("Not enough food in tank!");
     return;
   }
+  if (feeder.Mode == 1)
+  {
+    blinkLED(1);
+  }
+  else
+  {
+    blinkLED(2);
+  }
   // dispensing food
   int servoTime = map(feeder.portionSize, MIN_PORTION, MAX_PORTION, 200, 500); // Map portion size to servo time
   // fixme - servo isnt working properly
@@ -43,6 +51,7 @@ void resetFeederForNextDay()
   // add all the health checks here and check abnormal behavior
   if (feeder.bowlLevel >= BOWL_FULL_THRESHOLD)
   {
+    blinkSlow();
     feeder.portionSize = max(feeder.portionSize - 1, MIN_PORTION);
     Serial.println("Bowl was full all day – decreasing portion by 1g.\n");
   }
@@ -106,5 +115,23 @@ void checkEatingTrendAndAlert()
   if (feeder.feedEventsToday == 0 || feeder.bowlLevel < minDailyIntake)
   {
     displayAlert();
+  }
+}
+
+void checkTankLevelAndAlert()
+{
+  if (feeder.tankLevel < TANK_EMPTY_THRESHOLD && !feeder.tankLow)
+  {
+    blinkFast();
+    feeder.tankLow = true;
+    Serial.println("⚠️ ALERT: Tank is low!");
+    mqttClient.publish("catfeeder/alert", "⚠️ ALERT: Food tank is low!");
+  }
+  else if (feeder.tankLevel >= TANK_EMPTY_THRESHOLD && feeder.tankLow)
+  {
+    // Tank refilled
+    feeder.tankLow = false;
+    Serial.println("✅ Tank refilled.");
+    mqttClient.publish("catfeeder/alert", "✅ Food tank refilled.");
   }
 }

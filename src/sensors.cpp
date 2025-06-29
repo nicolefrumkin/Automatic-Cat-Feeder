@@ -14,3 +14,9 @@ int getPortionFromPot() {
   return map(potValue, 0, 4095, MIN_PORTION, MAX_PORTION);
 }
 
+void updateWeightLevels() {
+  feeder.bowlLevel = bowlScale.get_units();
+  feeder.tankLevel = tankScale.get_units(); 
+}
+
+

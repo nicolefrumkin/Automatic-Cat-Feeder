@@ -105,4 +105,10 @@ void resetFeederForNextDay();
 void logFeedingEvent();
 void checkEatingTrendAndAlert();
 void displayAlert();
+void updateWeightLevels();
+void checkTankLevelAndAlert();
 
+// LED functions
+void blinkLED(int times, int delayMs = 200);
+void blinkFast(int durationMs = 2000);
+void blinkSlow(int durationMs = 2000);
