@@ -45,8 +45,6 @@ void setup()
   feederInit();
 
   Serial.println("=== INITIALIZATION COMPLETE ===\n");
-
-  printMQTTInstructions();
   
   delay(2000); // Wait for 2 sec before starting the loop
 }

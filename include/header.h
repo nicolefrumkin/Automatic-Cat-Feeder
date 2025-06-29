@@ -105,5 +105,4 @@ void resetFeederForNextDay();
 void logFeedingEvent();
 void checkEatingTrendAndAlert();
 void displayAlert();
-void printMQTTInstructions();
 

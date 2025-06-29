@@ -118,13 +118,15 @@ String formatTime(unsigned long milliseconds)
 void displayAlert()
 {
   display.clearDisplay();
-  display.setTextSize(1);
+  display.setTextSize(2);
   display.setTextColor(SSD1306_WHITE);
   display.setCursor(0, 0);
-  display.println("⚠️ ALERT:");
+  display.println("ALERT");
+  display.setTextSize(1);
+  display.setCursor(0, 20);
   display.println("Low intake today.");
   Serial.println("⚠️  ALERT:");
   Serial.println("Low intake today.\n");
   display.display();
-  mqttClient.publish(MQTT_TOPIC_ALERT, "Alert: Cat may be sick - not eating properly");
+  mqttClient.publish(MQTT_TOPIC_ALERT, "Alert: Low intake today.");
 }
