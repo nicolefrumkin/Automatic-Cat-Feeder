@@ -128,5 +128,5 @@ void displayAlert()
   Serial.println("⚠️  ALERT:");
   Serial.println("Low intake today.\n");
   display.display();
-  mqttClient.publish(MQTT_TOPIC_ALERT, "Alert: Low intake today.");
+  mqttClient.publish(MQTT_TOPIC_ALERT, "Alert: Low intake today.\n");
 }
