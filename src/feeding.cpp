@@ -92,10 +92,12 @@ void simulateEating()
     }
 
     lastEatingTime = currentMillis;
-    
+
     String eating_msg = sounds[random(0, 5)];
     Serial.println("🐱 " + eating_msg);
-    mqttClient.publish("catfeeder/feed", eating_msg.c_str());
+
+    String full_msg = "Cat ate. " + eating_msg;
+    mqttClient.publish("catfeeder/feed", full_msg.c_str());
 
     String bowl_msg = "Bowl now has " + String(feeder.bowlLevel) + "g\n";
     Serial.println(bowl_msg);
