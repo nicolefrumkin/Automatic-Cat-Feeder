@@ -10,14 +10,16 @@ void addFoodToBowl()
   // checking if bowl will overflow
   if (feeder.portionSize + feeder.bowlLevel >= BOWL_FULL_THRESHOLD)
   {
-    Serial.println("Bowl is already full!");
+    Serial.println("Bowl is already full!\n");
+    mqttClient.publish("catfeeder/alert", "Bowl is already full!\n");
     feeder.bowlIsFull = true; // Set bowl full flag
     return;
   }
   // checking if there is enough food in the tank
   if (feeder.tankLevel < feeder.portionSize)
   {
-    Serial.println("Not enough food in tank!");
+    Serial.println("Not enough food in tank!\n");
+    mqttClient.publish("catfeeder/alert", "Not enough food in tank!\n");
     return;
   }
   if (feeder.Mode == 1)
@@ -40,6 +42,7 @@ void addFoodToBowl()
   feeder.bowlLevel += feeder.portionSize; // Update bowl level
   feeder.tankLevel -= feeder.portionSize; // Update tank level
   feeder.lastFeedTime = millis();
+  mqttClient.publish("catfeeder/feed", "Food added to bowl!");
   Serial.println("Food added to bowl!");
   logFeedingEvent();
 }
@@ -54,22 +57,25 @@ void resetFeederForNextDay()
     blinkSlow();
     feeder.portionSize = max(feeder.portionSize - 1, MIN_PORTION);
     Serial.println("Bowl was full all day – decreasing portion by 1g.\n");
+    mqttClient.publish("catfeeder/status", "Bowl was full all day – decreasing portion by 1g.\n");
   }
   if (feeder.bowlEmptyTime > 0 &&
       (feeder.bowlEmptyTime - feeder.lastFeedTime) <= 5000)
   {
     feeder.portionSize = min(feeder.portionSize + 1, MAX_PORTION);
+    mqttClient.publish("catfeeder/status", "Bowl emptied quickly – increasing portion by 1g.\n");
     Serial.println("Bowl emptied quickly – increasing portion by 1g.");
   }
   feeder.bowlEmptyTime = 0;
   checkEatingTrendAndAlert();
+  mqttClient.publish("catfeeder/status", "Feeder reset for new day.\n");
   Serial.println("Feeder reset for new day.\n");
 }
 
 void simulateEating()
 {
   const int eatingRate = 10;                  // grams per eating event
-  const unsigned long eatingInterval = random(10000, 25001); // random time from 10 to 25 seconds between bites
+  const unsigned long eatingInterval = 15000; // 15 seconds between bites
   String sounds[] = {"nom nom", "munch munch", "slurp!", "nyam nyam", "crunch crunch"};
 
   static unsigned long lastEatingTime = 0;
@@ -86,8 +92,14 @@ void simulateEating()
     }
 
     lastEatingTime = currentMillis;
-    Serial.println("🐱 " + sounds[random(0, 5)]);
-    Serial.println("Bowl now has " + String(feeder.bowlLevel) + "g\n");
+    
+    String eating_msg = sounds[random(0, 5)];
+    Serial.println("🐱 " + eating_msg);
+    mqttClient.publish("catfeeder/feed", eating_msg.c_str());
+
+    String bowl_msg = "Bowl now has " + String(feeder.bowlLevel) + "g\n";
+    Serial.println(bowl_msg);
+    mqttClient.publish("catfeeder/feed", bowl_msg.c_str());
   }
   if (feeder.bowlLevel <= 0 && feeder.bowlEmptyTime == 0)
   {
@@ -101,7 +113,7 @@ void logFeedingEvent()
   String modeStr = feeder.Mode == MANUAL ? "MANUAL" : "SCHEDULED";
   int quantity = feeder.portionSize;
 
-  String message = "Feeding: " + timestamp + ", " + modeStr + ", " + String(quantity) + "g";
+  String message = "Feeding: " + timestamp + ", " + modeStr + ", " + String(quantity) + "g\n";
   Serial.println(message);
 
   // Publish to MQTT
@@ -124,14 +136,14 @@ void checkTankLevelAndAlert()
   {
     blinkFast();
     feeder.tankLow = true;
-    Serial.println("⚠️ ALERT: Tank is low!");
-    mqttClient.publish("catfeeder/alert", "⚠️ ALERT: Food tank is low!");
+    Serial.println("⚠️ ALERT: Tank is low!\n");
+    mqttClient.publish("catfeeder/alert", "ALERT: Food tank is low!\n");
   }
   else if (feeder.tankLevel >= TANK_EMPTY_THRESHOLD && feeder.tankLow)
   {
     // Tank refilled
     feeder.tankLow = false;
-    Serial.println("✅ Tank refilled.");
-    mqttClient.publish("catfeeder/alert", "✅ Food tank refilled.");
+    Serial.println("✅ Tank refilled.\n");
+    mqttClient.publish("catfeeder/alert", "Food tank refilled.\n");
   }
 }
